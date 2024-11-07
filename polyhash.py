@@ -12,9 +12,8 @@ from polysolver import solve, score_solution, save_solution
 if __name__ == "__main__":
     # On fournit ici un exemple permettant de passer un simple
     # argument (le fichier du challenge) en paramètre. N'hésitez pas à
-    # compléter avec d'autres paramètres/options.
-
-    # Consultez la documentation du module argparse:
+    # compléter avec d'autres paramètres/options, en consultant la
+    # documentation du module argparse:
     # https://docs.python.org/3/library/argparse.html
 
     import argparse
