@@ -1,21 +1,20 @@
-Projet Poly#
-============
+Projet Polyhash
+===============
 
-Décrire brièvement le projet ici.
+Ce projet à pour objectif de résoudre le sujet HashCode 2015 fourni par Google France.
+Il s'agit en fait d'optimiser le déplacement de ballons fournisseur d'internet pour couvrir des récépteurs un maximum de temps.
+Pour ce faire il faut décider du déplacement des ballons en fonction de la carte des vents disponibles sur plusieurs altitudes.
 
-Le fichier `README.md` est écrit en [**Markdown**](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) et permet de soigner la _mise en forme_.
 
 Fonctionnement du projet
 ========================
 
-Description du fonctionnement du projet, notamment comment le lancer (paramètres, etc).
+le fonctionnement du projet sera établit ultérieurement.
 
-La syntaxe générale/minimale est
-
-    polyhash.py ./challenges/challenge.in ./output/sortie.txt
 
 L'équipe
 ========
 
 - Petiot - florian.petiot@etu.univ-nantes.fr
 - TEIGNE Gabriel - gabriel.teigne@etu.univ-nantes.fr
+- Côme Demaure - come.demaure@etu.univ-nantes.fr
