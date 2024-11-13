@@ -17,8 +17,5 @@ La syntaxe générale/minimale est
 L'équipe
 ========
 
-À compléter par chaque personne: 1 ligne par personne, indiquant le nom et l'adresse mail de la personne, et chacun pousse ses informations.
-
-L'objectif de cette manipulation est de provoquer des conflits d'édition, qui surviennent quand un même fichier est modifié au même endroit par plusieurs personnes, et de voir comment on les résout.
-
 - Petiot - florian.petiot@etu.univ-nantes.fr
+- TEIGNE Gabriel - gabriel.teigne@etu.univ-nantes.fr
