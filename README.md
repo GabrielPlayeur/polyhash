@@ -17,3 +17,4 @@ L'équipe
 
 - Petiot - florian.petiot@etu.univ-nantes.fr
 - TEIGNE Gabriel - gabriel.teigne@etu.univ-nantes.fr
+- Côme Demaure - come.demaure@etu.univ-nantes.fr
