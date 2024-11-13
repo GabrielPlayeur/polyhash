@@ -23,3 +23,4 @@ L'objectif de cette manipulation est de provoquer des conflits d'édition, qui s
 
 - Nom - adresse mail
 - etc...
+- Côme Demaure - come.demaure@etu.univ-nantes.fr
