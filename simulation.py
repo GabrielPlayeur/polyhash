@@ -3,9 +3,9 @@
 
 """Module.
 """
-from cell import Cell
+from cells import Cell
 from wind import Wind
-from balloon import Balloon
+from balloons import Balloon
 
 class Simulation:
     def __init__(self) -> None:
