@@ -1,24 +1,61 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """Module de parsing des fichiers d'entrée pour la mise en oeuvre du projet Poly#.
 """
 import re
+import os
+from dataclasses import dataclass
 
-def parse_challenge(filename: str) -> object:
-    """Lit un fichier de challenge et extrait les informations nécessaires.
+@dataclass
+class ParserData:
+    rows: int
+    columns: int
+    altitudes: int
+    targets_number: int
+    radius: int
+    balloons: int
+    turns: int
+    starting_cell: tuple[int,int]
+    targets_pos: set[tuple[int,int]]
+    winds: list[list[list[int]]]
 
-    Vous pouvez choisir la structure de données structurées qui va
-    représenter votre challenge: dictionnaire, objet, etc
+def parseChallenge(filename: str) -> ParserData:
     """
+    Reads a challenge file and extracts the necessary information.
+    args:
+        filename: path to a challenge file
+    return:
+        data: challengeextracts information
+    """
+    assert os.path.exists(filename) == True, f"The given file's path didn't exist in ./challenges/: {filename}"
+    data = {}
     with open(filename, 'r') as f:
-        # Lire la première ligne, la découper, et convertir les valeurs en entier
-        line = f.readline().strip()
-        # Strip everything after #
-        line = re.sub(r'\s*#.*', '', line)
-        rows, columns, altitudes = [ int(v) for v in line.split() ]
-
-        # ...
-    challenge = dict()
-
-    return challenge
+        line = re.sub(r'\s*#.*', '', f.readline().strip())
+        data['rows'], data['columns'], data['altitudes'] = [ int(v) for v in line.split() ]
+        line = re.sub(r'\s*#.*', '', f.readline().strip())
+        data['targets_number'], data['radius'], data['balloons'], data['turns'] = [ int(v) for v in line.split() ]
+        line = re.sub(r'\s*#.*', '', f.readline().strip())
+        x,y = [ int(v) for v in line.split() ]
+        data['starting_cell'] = (x,y)
+        data['targets_pos'] = set()
+        for _ in range(data['targets_number']):
+            line = re.sub(r'\s*#.*', '', f.readline().strip())
+            x,y = [int(v) for v in line.split()]
+            data['targets_pos'].add((x,y))
+        data['winds'] = [ [ [] for _ in range(data['columns'])] for _ in range(data['rows'])]
+        for _ in range(data['altitudes']):
+            for i in range(data['rows']):
+                line = re.sub(r'\s*#.*', '', f.readline().strip())
+                colWinds = [int(v) for v in line.split()]
+                for j in range(0,len(colWinds),2):
+                    x,y = colWinds[j],colWinds[j+1]
+                    data['winds'][i][j//2].append((x,y))
+    return ParserData(data['rows'],
+                      data['columns'],
+                      data['altitudes'],
+                      data['targets_number'],
+                      data['radius'],
+                      data['balloons'],
+                      data['turns'],
+                      data['starting_cell'],
+                      data['targets_pos'],
+                      data['winds']
+                      )
