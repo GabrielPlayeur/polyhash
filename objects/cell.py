@@ -17,3 +17,6 @@ class Cell:
     def getWinds(self, alt: int) -> Wind:
         assert len(self._winds)+1 > alt > 0
         return self._winds[alt-1]
+    
+    def __str__(self) -> str:
+        return f"Cell ({self.x}:{self.y})"
