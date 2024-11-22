@@ -3,22 +3,25 @@ from __future__ import annotations
 """
 from .cell import Cell
 from .balloon import Balloon
+from .wind import Wind
 
 class TargetCell(Cell):
-    def __init__(self, x: int, y: int) -> None:
-        super().__init__(x, y)
+    def __init__(self, x: int, y: int, winds: list[Wind]) -> None:
+        super().__init__(x, y, winds)
         self.coverBy: set[Balloon]
-        # self.targets: tuple[TargetCell] # (self)
-        self.points: int
+        self._points: int
 
     def addBalloon(self, balloon: Balloon) -> None:
-        raise NotImplementedError
+        self.coverBy.add(balloon)
 
     def removeBalloon(self, balloon: Balloon) -> None:
-        raise NotImplementedError
+        self.coverBy.remove(balloon)
 
-    # def addTarget(self, target: TargetCell) -> None:
-    #     raise NotImplementedError
+    def isCovered(self) -> bool:
+        return len(self.coverBy)>0
 
     def incrPoints(self) -> None:
-        raise NotImplementedError
+        self._points += 1
+
+    def getPoints(self) -> int:
+        return self._points

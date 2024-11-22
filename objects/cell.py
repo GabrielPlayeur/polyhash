@@ -1,7 +1,7 @@
 from __future__ import annotations
 """Module.
 """
-from wind import Wind
+from .wind import Wind
 
 class Cell:
     def __init__(self, x: int, y: int, winds: list[Wind]) -> None:

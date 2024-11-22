@@ -1,6 +1,6 @@
 import pytest
 from objects import Cell
-from wind import Wind
+from objects.wind import Wind
 
 class TestCell:
 
