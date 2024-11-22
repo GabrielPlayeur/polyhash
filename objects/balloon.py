@@ -1,7 +1,7 @@
 
 """Module.
 """
-from cells import Cell
+from objects import Cell
 
 class Balloon:
     def __init__(self) -> None:

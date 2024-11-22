@@ -3,7 +3,7 @@
 
 """Module.
 """
-from cells import Cell
+from objects import Cell
 
 class PathBalloon:
     def __init__(self) -> None:
