@@ -11,5 +11,5 @@ class Balloon:
 
     def moveAlt(self, value: int) -> None:
         assert value==1 or value==0 or value==-1
-        assert self.altMax > self.alt+value > 0
+        assert self.altMax >= self.alt+value > 0
         self.alt += value
