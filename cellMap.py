@@ -26,11 +26,11 @@ class CellMap:
 
         self.map:list[list[Cell]] = []
         
-        self.initialize(parserData)
-        self.defineTargetRange(parserData)
+        self._initialize(parserData)
+        self._defineTargetRange(parserData)
 
             
-    def initialize(self, parserData:ParserData) -> None:
+    def _initialize(self, parserData:ParserData) -> None:
         """Initialisation de la matrice de cellule"""
 
         for row in range(self.rows):
@@ -55,7 +55,7 @@ class CellMap:
             
 
     
-    def defineTargetRange(self, parserData: ParserData) -> None: #test pas fait !!
+    def _defineTargetRange(self, parserData: ParserData) -> None: #test pas fait !!
         """Defini les cellules couvertes par une target"""
 
         for targetPos in parserData.targets_pos:
@@ -79,7 +79,7 @@ class CellMap:
     def inRange(self, target:TargetCell, cell:Cell) -> bool:
         """Retourne vrai si la cellule est dans le rayon <self.radius> de target"""
         columndist = lambda c1, c2: min(abs(c1-c2), self.columns - abs(c1-c2))
-        return (cell.x - target.x)**2 + columndist(cell.y, target.y)**2 <= self.radius
+        return (cell.x - target.x)**2 + columndist(cell.y, target.y)**2 <= self.radius**2
     
     
     
@@ -146,19 +146,22 @@ class CellMap:
 
 
 if __name__ == "__main__":
-    name = "c_medium"
+    name = "a_example"
     name = "b_small"
+    name = "c_medium"
+    name = "d_final"
     cellMap = CellMap(parseChallenge(f"./challenges/{name}.in"))
+    
 
 
     with open(f"{name}.repr", "w") as file:
         print(cellMap, file=file)
-    
+    """
     fileName = name+".poly#"
     cellMap.save(fileName)
 
     cellMapLoaded = CellMap.load(fileName)
-    print(cellMapLoaded)
+    print(cellMapLoaded)"""
 
     
 

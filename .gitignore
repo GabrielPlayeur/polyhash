@@ -1,3 +1,4 @@
+*.repr
 # Byte-compiled / optimized / DLL files
 *.pdf
 .vscode
