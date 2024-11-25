@@ -6,7 +6,7 @@ from .balloon import Balloon
 from .wind import Wind
 
 class TargetCell(Cell):
-    def __init__(self, x: int, y: int, winds: list[Wind]) -> None:
+    def __init__(self, x: int, y: int, winds: tuple[Wind]) -> None:
         super().__init__(x, y, winds)
         self.coverBy: set[Balloon] = set()
         self._points: int = 0

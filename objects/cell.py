@@ -4,11 +4,11 @@ from __future__ import annotations
 from .wind import Wind
 
 class Cell:
-    def __init__(self, x: int, y: int, winds: list[Wind]) -> None:
+    def __init__(self, x: int, y: int, winds: tuple[Wind]) -> None:
         self.pos: tuple[int,int] = (x,y)
         self.x: int = x
         self.y: int = y
-        self._winds: list[Wind] = winds
+        self._winds: tuple[Wind] = winds
         self.targets: list[Cell] = []
 
     def addTarget(self, target: Cell) -> None:

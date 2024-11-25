@@ -6,7 +6,7 @@ class TestCell:
 
     def test_cell_init(self):
         x,y = 0,0
-        winds = [Wind(0,0)]
+        winds = tuple([Wind(0,0)])
         cell = Cell(x,y,winds)
         assert type(cell) == Cell
         assert cell.x==x and cell.y==y and cell.pos==(x,y)
@@ -14,7 +14,7 @@ class TestCell:
 
     def test_cell_addTarget(self):
         x,y = 0,0
-        winds = [Wind(0,0)]
+        winds = tuple([Wind(0,0)])
         cell = Cell(x,y,winds)
         target = Cell(0,0,winds)
         cell.addTarget(target)
@@ -23,7 +23,7 @@ class TestCell:
 
     def test_cell_getWinds(self):
         x,y = 0,0
-        winds = [Wind(0,0)]
+        winds = tuple([Wind(0,0)])
         cell = Cell(x,y,winds)
         assert cell.getWinds(1)==winds[0]
         with pytest.raises(AssertionError):
