@@ -3,8 +3,8 @@
 """
 
 class Wind:
-    def __init__(self, dx: int, dy: int) -> None:
-        """Entity that describe the wind with a vec"""
-        self.vec: tuple[int,int] = (dx,dy)
-        self.dx: int = dx
-        self.dy: int = dy
+    def __init__(self, dRow: int, dCol: int) -> None:
+        """Entitcol that describe the wind with a vec"""
+        self.vec: tuple[int,int] = (dRow,dCol)
+        self.dRow: int = dRow
+        self.dCol: int = dCol

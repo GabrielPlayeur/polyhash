@@ -15,11 +15,16 @@ def test_cellMap_init():
         
         assert parser.starting_cell == cellMap.startingCell.pos, f"the starting cell is not at the right position"
         
-        print(parser.rows, parser.columns)
         for row, col in parser.targets_pos:
             assert len(cellMap.map) >= row and len(cellMap.map[row]) >= col
             assert type(cellMap.map[row][col]) is TargetCell, f"The cell {row}:{col} should be a target"
             assert len(cellMap.map[row][col]._winds) == parser.altitudes, f"The cell {row}:{col} has not enough layer of wind"
+
+            #wind test
+            for alt in range(len(parser.winds[row][col])):
+                assert parser.winds[row][col][alt] == cellMap.map[row][col].getWinds(alt+1).vec, f"the wind is wrong at the altitude {alt+1}"
+
+
 
         
 
