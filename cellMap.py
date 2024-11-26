@@ -38,7 +38,7 @@ class CellMap:
             for col in range(self.columns):
 
                 winds = []
-                for vec in parserData.winds:
+                for vec in parserData.winds[row][col]:
                     winds.append(Wind(vec[0], vec[1]))
 
                 if (row, col) in parserData.targets_pos:
@@ -46,12 +46,14 @@ class CellMap:
                 else:
                     cell = Cell(row, col, tuple(winds))
 
-                if (cell.x, cell.y) == parserData.starting_cell:
+                if (cell.row, cell.col) == parserData.starting_cell:
                     self.startingCell = cell
 
                 self.map[row].append(cell)
+
+        assert self.startingCell is not None
         
-        assert len(self.map) == self.rows and len(self.map[0]) == self.columns, "Failed to create the map"
+        
             
 
     
@@ -62,10 +64,10 @@ class CellMap:
             target = self.map[targetPos[0]][targetPos[1]]
 
             #pour limiter le rayon de recherche, on teste toutes les cellules dans le carré de coté radius centré sur target
-            northSquare = max(target.x-self.radius, 0)
-            southSquare = min(target.x+self.radius+1, self.rows)
-            eastSquare = target.y-self.radius
-            westSquare = target.y+self.radius+1
+            northSquare = max(target.row-self.radius, 0)
+            southSquare = min(target.row+self.radius+1, self.rows)
+            eastSquare = target.col-self.radius
+            westSquare = target.col+self.radius+1
 
             for row in range(northSquare, southSquare):
                 for col in range(eastSquare, westSquare):
@@ -76,10 +78,10 @@ class CellMap:
             
             
 
-    def inRange(self, target:TargetCell, cell:Cell) -> bool:
+    def inRange(self, target:Cell, cell:Cell) -> bool:
         """Retourne vrai si la cellule est dans le rayon <self.radius> de target"""
         columndist = lambda c1, c2: min(abs(c1-c2), self.columns - abs(c1-c2))
-        return (cell.x - target.x)**2 + columndist(cell.y, target.y)**2 <= self.radius**2
+        return (cell.row - target.row)**2 + columndist(cell.col, target.col)**2 <= self.radius**2
     
     
     
@@ -146,17 +148,18 @@ class CellMap:
 
 
 if __name__ == "__main__":
-    name = "a_example"
-    name = "b_small"
     name = "c_medium"
     name = "d_final"
+    name = "b_small"
+    name = "a_example"
     cellMap = CellMap(parseChallenge(f"./challenges/{name}.in"))
+    print(cellMap)
     
 
 
+    """ 
     with open(f"{name}.repr", "w") as file:
         print(cellMap, file=file)
-    """
     fileName = name+".poly#"
     cellMap.save(fileName)
 

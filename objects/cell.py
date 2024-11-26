@@ -4,11 +4,11 @@ from __future__ import annotations
 from .wind import Wind
 
 class Cell:
-    def __init__(self, x: int, y: int, winds: tuple[Wind]) -> None:
+    def __init__(self, row: int, col: int, winds: tuple[Wind]) -> None:
         """Entity that describe the wind and the target cell in range of a position"""
-        self.pos: tuple[int,int] = (x,y)
-        self.x: int = x
-        self.y: int = y
+        self.pos: tuple[int,int] = (row,col)
+        self.row: int = row
+        self.col: int = col
         self._winds: tuple[Wind] = winds
         self.targets: list[Cell] = []
 
@@ -26,4 +26,4 @@ class Cell:
         return self._winds[alt-1]
     
     def __str__(self) -> str:
-        return f"Cell ({self.x}:{self.y})"
+        return f"Cell ({self.row}:{self.col})"
