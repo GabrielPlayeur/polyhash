@@ -3,37 +3,66 @@
 
 """Module.
 """
-from cells import Cell
-from wind import Wind
-from balloons import Balloon
+
+from __future__ import annotations
+from dataclasses import dataclass
+
+from brain.brainInit import Brain
+from cellMap import CellMap
+from objects import Wind, Cell, TargetCell, Balloon
+from polyparser import ParserData, parseChallenge
+
+
+@dataclass
+class ResultData:
+    #TODO: make a dataclass that can store ervery datas needed for generating the solution through <polysolver>
+    ...
 
 class Simulation:
-    def __init__(self) -> None:
-        self.R: int
-        self.C: int
-        self.A: int
-        self.NB_ROUND: int
-        self.current_round: int
-        self.map: tuple[tuple[Cell]]
+    def __init__(self, parserData:ParserData) -> None:
+        #Constantes
+        self.ROWS: int       = parserData.rows
+        self.COLUMNS: int    = parserData.columns
+        self.ALTITUDES: int  = parserData.altitudes
+        self.ROUNDS: int     = parserData.turns
+        self.BALLOONS : int  = parserData.balloons
+
+        #Variables
+        self.current_round: int     = parserData.rows
+        self.map: list[list[Cell]]  = CellMap(parserData).getMap()
         self.balloons: set[Balloon]
+        self.brain:Brain
 
-        self.initMap
-        self.initNeighborh
+    
+    def run(self, ) -> ResultData:
+        while self.current_round < self.ROUNDS:
+            #TODO: write down the process of making an iteration
 
+            self.nextTurn()
+            
+            self.current_round += 1
+
+        return ResultData()
 
     def nextTurn(self) -> None:
         for balloon in self.balloons:
-            # balloon.moveAlt() Choix de simulation
-            self.moveBalloon(balloon)
-            balloon.chooseAction() # Choix de simulation
-            balloon.next()
 
-    def moveBalloon(self, balloon: Balloon) -> None:
-        cell = balloon.cell
-        wind = cell.getWinds(balloon.alt)
-        if cell.x+wind.x > self.R : #TODO
-            self.balloons.remove(balloon)
-            return
-        x = 0
-        y = 0
-        balloon.cell = self.map[x][y]
+            #Moving balloon
+            altMoving = self.brain.solve()
+            balloon.moveAlt(altMoving)
+
+            #Applying wind
+            self.applyWind(balloon)
+
+            #Counting points
+            self.countPoints(balloon.cell)
+
+
+    def applyWind(self, balloon) -> None:
+        #TODO: this method should be moving one or every balloon under the wind of the cell they are on
+        ...
+
+    def countPoints(self, cell) -> int:
+        #TODO: write it
+        return 0
+

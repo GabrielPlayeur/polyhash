@@ -32,6 +32,7 @@ class CellMap:
             
     def _initialize(self, parserData:ParserData) -> None:
         """Initialisation de la matrice de cellule"""
+        self.map = []
 
         for row in range(self.rows):
             self.map.append([])
@@ -82,6 +83,11 @@ class CellMap:
         """Retourne vrai si la cellule est dans le rayon <self.radius> de target"""
         columndist = lambda c1, c2: min(abs(c1-c2), self.columns - abs(c1-c2))
         return (cell.row - target.row)**2 + columndist(cell.col, target.col)**2 <= self.radius**2
+    
+
+
+    def getMap(self, ) -> list[list[Cell]]:
+        return self.map
     
     
     
