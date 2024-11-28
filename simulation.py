@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from brain.brainInit import Brain
+from brain.randomBrain import RandomBrain
 from cellMap import CellMap
 from objects import Wind, Cell, TargetCell, Balloon
 from polyparser import ParserData, parseChallenge
@@ -16,22 +17,27 @@ from polyparser import ParserData, parseChallenge
 @dataclass
 class ResultData:
     #TODO: make a dataclass that can store ervery datas needed for generating the solution through <polysolver.stringifySolution>
-    ...
+    nbPoints:int
+    tracking:list[list[int]]
 
 class Simulation:
     def __init__(self, parserData:ParserData) -> None:
         #Constantes
-        self.ROWS: int       = parserData.rows
-        self.COLUMNS: int    = parserData.columns
-        self.ALTITUDES: int  = parserData.altitudes
-        self.ROUNDS: int     = parserData.turns
-        self.BALLOONS : int  = parserData.balloons
+        self.ROWS: int          = parserData.rows
+        self.COLUMNS: int       = parserData.columns
+        self.ALTITUDES: int     = parserData.altitudes
+        self.ROUNDS: int        = parserData.turns
+        self.NB_BALLOONS : int  = parserData.balloons
 
         #Variables
-        self.current_round: int     = parserData.rows
-        self.map: CellMap  = CellMap(parserData)
-        self.balloons: set[Balloon]
-        self.brain:Brain
+        self.current_round: int     = 0
+        self.map: CellMap           = CellMap(parserData)
+        self.balloons: set[Balloon] = set([Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)])
+        self.brain:Brain            = RandomBrain()
+
+
+        #Result
+        self.resultData: ResultData = ResultData(0, [])
 
     
     def run(self, ) -> ResultData:
@@ -39,30 +45,44 @@ class Simulation:
             #TODO: write down the process of making an iteration
 
             self.nextTurn()
-            
+
             self.current_round += 1
 
-        return ResultData()
+        return self.resultData
 
     def nextTurn(self) -> None:
-        for balloon in self.balloons:
+        coveredCells = set()
+        for n, balloon in enumerate(self.balloons):
+            #If the balloon is lost
+            if not balloon.cell:
+                continue
 
             #Moving balloon
-            altMoving = self.brain.solve()
-            balloon.moveAlt(altMoving)
+            altMoving = self.brain.solve(balloon)
+            if altMoving:
+                balloon.moveAlt(altMoving)
 
             #Applying wind
-            self.applyWind(balloon)
+            balloon.applyWind()
 
             #Counting points
-            self.countPoints(balloon.cell)
+            if balloon.cell:
+                for target in balloon.cell.targets:
+                    coveredCells.add(target)
+            
+            #Adding movement in result
+            if len(self.resultData.tracking) <= n:
+                self.resultData.tracking.append([])
+            self.resultData.tracking[n].append(altMoving)
+
+        self.resultData.nbPoints += len(coveredCells)
 
 
-    def applyWind(self, balloon) -> None:
-        #TODO: this method should be moving one or every balloon under the wind of the cell they are on
-        ...
 
-    def countPoints(self, cell) -> int:
-        #TODO: write it
-        return 0
-
+if __name__ == "__main__":
+    name = "a_example.in"
+    name = "b_small.in"
+    parser = parseChallenge(f"./challenges/{name}")
+    sim = Simulation(parser)
+    sim.run()
+    print(sim.ROUNDS)

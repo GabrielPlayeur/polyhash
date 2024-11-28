@@ -26,7 +26,7 @@ if __name__ == "__main__":
                         metavar="sortie.txt")
     args = parser.parse_args()
 
-    challenge = parseChallenge(args.challenge)
+    challenge = parseChallenge(f"./challenges/{args.challenge}")
 
     solution = solve(challenge)
 
@@ -34,4 +34,6 @@ if __name__ == "__main__":
         # Sauvegarder le fichier généré
         saveSolution(args.output, solution)
         print(f"Solution saved in {args.output}")
-    print(f"Score: {getScoreSolution(solution)}")
+    
+    
+    #print(f"Score: {getScoreSolution(solution)}")
