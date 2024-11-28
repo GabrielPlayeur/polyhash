@@ -25,17 +25,14 @@ def stringifySolution(result:ResultData, nbTurn:int) -> str:
     #TODO: write it !
 
     solution = ""
-    
-    for balloonPath in result.tracking:
-        i = 0
-        for move in balloonPath:
-            i += 1
-            solution += str(move) + " "
 
-        while i < nbTurn:
-            solution += "0 "
-            i += 1
-
+    for turn in range(nbTurn):
+        for balloon in range(len(result.tracking)):
+            if len(result.tracking[balloon]) > turn:
+                solution += str(result.tracking[balloon][turn]) + " "
+            else:
+                solution += "0 "
+        
         solution = solution[:-1] + "\n"
 
     return solution
