@@ -15,7 +15,7 @@ from polyparser import ParserData, parseChallenge
 
 @dataclass
 class ResultData:
-    #TODO: make a dataclass that can store ervery datas needed for generating the solution through <polysolver>
+    #TODO: make a dataclass that can store ervery datas needed for generating the solution through <polysolver.stringifySolution>
     ...
 
 class Simulation:
@@ -29,7 +29,7 @@ class Simulation:
 
         #Variables
         self.current_round: int     = parserData.rows
-        self.map: list[list[Cell]]  = CellMap(parserData).getMap()
+        self.map: CellMap  = CellMap(parserData)
         self.balloons: set[Balloon]
         self.brain:Brain
 

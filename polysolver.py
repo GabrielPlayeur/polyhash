@@ -23,7 +23,7 @@ def solve(challenge: ParserData):
     return a_solution
 
 
-def stringifyingSolution(solution:ResultData) -> str:
+def stringifySolution(solution:ResultData) -> str:
     #TODO: write it !
 
     result = ""

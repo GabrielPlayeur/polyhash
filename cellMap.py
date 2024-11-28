@@ -28,6 +28,7 @@ class CellMap:
         
         self._initialize(parserData)
         self._defineTargetRange(parserData)
+        self._createGraph(parserData)
 
             
     def _initialize(self, parserData:ParserData) -> None:
@@ -77,7 +78,6 @@ class CellMap:
                         cell.addTarget(target)
                 
             
-            
 
     def inRange(self, target:Cell, cell:Cell) -> bool:
         """Retourne vrai si la cellule est dans le rayon <self.radius> de target"""
@@ -85,9 +85,29 @@ class CellMap:
         return (cell.row - target.row)**2 + columndist(cell.col, target.col)**2 <= self.radius**2
     
 
+    def _createGraph(self, parserData:ParserData) -> None:      #not tested
+        """Crée un graph à partir de la martice de cellule et de celle des vents"""
 
-    def getMap(self, ) -> list[list[Cell]]:
-        return self.map
+        assert self.startingCell is not None, "Impossible de créer le graph: startingCell is None"
+
+        for row in range(self.rows):
+            for col in range(self.columns):
+                cell = self.map[row][col]
+                for dRow, dCol in parserData.winds[row][col]:
+                    if 0 <= row+dRow < self.rows:
+                        neighbors = self.map[row+dRow][(col+dCol)%self.columns]
+                        cell.addNeighbor(neighbors)
+                    else:
+                        cell.addNeighbor(None)
+
+                assert len(cell.neighbors) == self.altitudes, f"La cellule {cell} n'a pas {self.altitudes} cellules adjacentes"
+
+
+
+    def getCell(self, row:int, col:int) -> Cell:
+        assert 0 <= row < self.rows, "row out of range"
+        assert 0 <= col < self.columns, "row out of range"
+        return self.map[row][col]
     
     
     
@@ -171,7 +191,4 @@ if __name__ == "__main__":
 
     cellMapLoaded = CellMap.load(fileName)
     print(cellMapLoaded)"""
-
-    
-
 
