@@ -20,6 +20,11 @@ class Cell:
     def addNeighbor(self, cell:Cell|None) -> None:
         "add a neighbor at the n+1 altitude, letting n be lenght of neighbors"
         self.neighbors.append(cell)
+    
+
+    def getNeighbor(self, alt: int) -> Cell|None:
+        assert len(self._winds)+1 > alt > 0
+        return self.neighbors[alt-1]
 
     def getWinds(self, alt: int) -> Wind:
         """Get wind at the altitude

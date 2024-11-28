@@ -6,7 +6,7 @@ from objects import Cell
 class Balloon:
     def __init__(self, startCell: Cell) -> None:
         """Entity that describe a balloon and it's altitude"""
-        self.cell: Cell = startCell
+        self.cell: Cell | None = startCell
         self.alt: int = 0
         self.altMax = len(self.cell._winds)
 
@@ -19,3 +19,8 @@ class Balloon:
         assert value==1 or value==0 or value==-1
         assert self.altMax >= self.alt+value > 0
         self.alt += value
+
+    def applyWind(self, ) -> None:
+        """Apply the wind at the current altitude"""
+        if self.alt > 0:
+            self.cell = self.cell.getNeighbor(self.alt)
