@@ -35,7 +35,7 @@ def stringifySolution(result:ResultData, nbTurn:int) -> str:
         
         solution = solution[:-1] + "\n"
 
-    return solution
+    return solution[:-1]
 
 
 

@@ -21,6 +21,6 @@ class Balloon:
         assert self.altMax >= self.alt+value > 0
         self.alt += value
 
-    def applyWind(self) -> None: #TODO: add test
+    def applyWind(self) -> None:
         """Apply the wind at the current altitude"""
         self.cell = self.cell.getNeighbor(self.alt)
