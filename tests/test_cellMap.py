@@ -71,21 +71,25 @@ class TestCellMap:
 
         assert mapCell.getCell(1, 2) == mapCell.map[1][2]
 
-    def test_cellMap_createGraph(self, ):
+    def test_cellMap_createGraph(self):
         parser = parseChallenge(f"./challenges/a_example.in")
         mapCell = CellMap(parser)
-
+        print(mapCell)
+        neighborMapAlt1 = [[ mapCell.map[0][1], mapCell.map[0][2], mapCell.map[0][3], mapCell.map[0][4], mapCell.map[0][0]],
+                           [ mapCell.map[1][1], mapCell.map[1][2], mapCell.map[1][3], mapCell.map[1][4], mapCell.map[1][0]],
+                           [ mapCell.map[2][1], mapCell.map[2][2], mapCell.map[2][3], mapCell.map[2][4], mapCell.map[2][0]]
+        ]
+        neighborMapAlt2 = [[ mapCell.outsideCell, mapCell.outsideCell, mapCell.outsideCell, mapCell.outsideCell, mapCell.outsideCell],
+                           [ mapCell.map[0][0], mapCell.map[0][1], mapCell.map[0][2], mapCell.map[0][3], mapCell.map[0][4]],
+                           [ mapCell.map[1][0], mapCell.map[1][1], mapCell.map[1][2], mapCell.map[1][3], mapCell.map[1][4]]
+        ]
+        neighborMapAlt3 = [[ mapCell.map[0][1], mapCell.map[0][2], mapCell.map[0][3], mapCell.map[0][0], mapCell.map[0][0]],
+                           [ mapCell.map[1][2], mapCell.map[1][2], mapCell.map[1][4], mapCell.map[1][1], mapCell.map[1][1]],
+                           [ mapCell.map[2][1], mapCell.map[2][2], mapCell.map[2][3], mapCell.map[2][0], mapCell.map[2][0]]
+        ]
         for row in range(parser.rows):
             for col in range(parser.columns):
-                for alt in range(1, parser.altitudes):
-                    cell = mapCell.map[row][col]
-                    
-                    dRow, dCol = parser.winds[row][col][alt]
-
-                    if parser.rows > dRow + row >= 0:
-                        neighbor = mapCell.map[dRow+row][(col+dCol)%parser.columns]
-                    else:
-                        neighbor = None
-
-                    assert cell.getNeighbor(alt) == neighbor, f"the neighbor {row}:{col}:{alt} doesn't correspond"
-
+                assert mapCell.map[row][col].getNeighbor(0) == mapCell.map[row][col]
+                assert mapCell.map[row][col].getNeighbor(1) == neighborMapAlt1[row][col]
+                assert mapCell.map[row][col].getNeighbor(2)== neighborMapAlt2[row][col]
+                assert mapCell.map[row][col].getNeighbor(3) == neighborMapAlt3[row][col]
