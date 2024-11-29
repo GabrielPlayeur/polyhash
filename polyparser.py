@@ -40,7 +40,7 @@ def parseChallenge(filename: str) -> ParserData:
             line = re.sub(r'\s*#.*', '', f.readline().strip())
             row,col = [int(v) for v in line.split()]
             data['targets_pos'].add((row,col))
-        data['winds'] = [ [ [] for _ in range(data['columns'])] for _ in range(data['rows'])]
+        data['winds'] = [ [ [(0,0)] for _ in range(data['columns'])] for _ in range(data['rows'])]
         for _ in range(data['altitudes']):
             for i in range(data['rows']):
                 line = re.sub(r'\s*#.*', '', f.readline().strip())

@@ -18,8 +18,8 @@ class TestParserChallenge:
         assert data.starting_cell == (1,2)
         assert len(list(data.targets_pos)) == 2
         assert (0,2) in data.targets_pos
-        assert len(data.winds) == 3 and len(data.winds[0]) == 5 and len(data.winds[0][0]) == 3
-        assert data.winds[0][0][0] == (0,1)
+        assert len(data.winds) == 3 and len(data.winds[0]) == 5 and len(data.winds[0][0]) == 4
+        assert data.winds[0][0][1] == (0,1)
 
     def test_parser_data_b(self):
         data = parseChallenge('challenges/b_small.in')
@@ -28,8 +28,8 @@ class TestParserChallenge:
         assert data.starting_cell == (5,10)
         assert len(list(data.targets_pos)) == 10
         assert (9,0) in data.targets_pos
-        assert len(data.winds) == 10 and len(data.winds[0]) == 20 and len(data.winds[0][0]) == 2
-        assert data.winds[0][0][0] == (2,1)
+        assert len(data.winds) == 10 and len(data.winds[0]) == 20 and len(data.winds[0][0]) == 3
+        assert data.winds[0][0][1] == (2,1)
 
     def test_parser_data_c(self):
         data = parseChallenge('challenges/c_medium.in')
@@ -38,8 +38,8 @@ class TestParserChallenge:
         assert data.starting_cell == (20,40)
         assert len(list(data.targets_pos)) == 20
         assert (30,54) in data.targets_pos
-        assert len(data.winds) == 40 and len(data.winds[0]) == 80 and len(data.winds[0][0]) == 4
-        assert data.winds[0][0][0] == (2,-2)
+        assert len(data.winds) == 40 and len(data.winds[0]) == 80 and len(data.winds[0][0]) == 5
+        assert data.winds[0][0][1] == (2,-2)
 
     def test_parser_data_d(self):
         data = parseChallenge('challenges/d_final.in')
@@ -48,5 +48,5 @@ class TestParserChallenge:
         assert data.starting_cell == (24,167)
         assert len(list(data.targets_pos)) == 2250
         assert (4,113) in data.targets_pos
-        assert len(data.winds) == 75 and len(data.winds[0]) == 300 and len(data.winds[0][0]) == 8
-        assert data.winds[0][0][0] == (-1,2)
+        assert len(data.winds) == 75 and len(data.winds[0]) == 300 and len(data.winds[0][0]) == 9
+        assert data.winds[0][0][1] == (-1,2)
