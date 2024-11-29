@@ -21,7 +21,7 @@ class Cell:
         "add a neighbor at the n altitude, letting n be lenght of neighbors"
         self.neighbors.append(cell)
 
-    def getNeighbor(self, alt: int) -> Cell: #TODO: add test
+    def getNeighbor(self, alt: int) -> Cell:
         assert len(self._winds) > alt >= 0
         return self.neighbors[alt]
 
