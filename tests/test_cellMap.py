@@ -21,10 +21,9 @@ class TestCellMap:
                     assert parser.winds[row][col][alt] == cellMap.map[row][col].getWindsByAlt(alt).vec, f"the wind is wrong at the altitude {alt+1}"
 
 
-    def test_cellMap_inRange(self, ):
+    def test_cellMap_inRange(self):
         parser = parseChallenge(f"./challenges/a_example.in")
         mapCell = CellMap(parser)
-
         assert mapCell.inRange(mapCell.map[0][1], mapCell.map[0][0]) == True
         assert mapCell.inRange(mapCell.map[0][1], mapCell.map[0][3]) == False
         assert mapCell.inRange(mapCell.map[0][1], mapCell.map[1][0]) == False
@@ -35,46 +34,29 @@ class TestCellMap:
         assert mapCell.inRange(mapCell.map[0][0], mapCell.map[0][4]) == True
 
         mapCell.radius = 2
-
         listTest = [(0, 0), (0,1), (0,3), (0,4), (1,1), (1,2), (1,3), (2, 2)]
         for row, col in listTest:
             assert mapCell.inRange(mapCell.map[0][2], mapCell.map[row][col]) == True
-
         listTest = [(1, 0), (1,4), (2,0), (2,1), (2,3), (2,4)]
         for row, col in listTest:
             assert mapCell.inRange(mapCell.map[0][2], mapCell.map[row][col]) == False
 
-
-    def test_cellMap_getCell(self, ):
+    def test_cellMap_getCell(self):
         parser = parseChallenge(f"./challenges/a_example.in")
         mapCell = CellMap(parser)
-
         with pytest.raises(AssertionError):
             mapCell.getCell(-1, 3)
         with pytest.raises(AssertionError):
-            mapCell.getCell(-1, 3)
-
-        with pytest.raises(AssertionError):
             mapCell.getCell(mapCell.rows, 3)
-        with pytest.raises(AssertionError):
-            mapCell.getCell(mapCell.rows, 3)
-
         with pytest.raises(AssertionError):
             mapCell.getCell(1, -1)
         with pytest.raises(AssertionError):
-            mapCell.getCell(1, -1)
-
-        with pytest.raises(AssertionError):
             mapCell.getCell(mapCell.rows, mapCell.columns)
-        with pytest.raises(AssertionError):
-            mapCell.getCell(mapCell.rows, mapCell.columns)
-
         assert mapCell.getCell(1, 2) == mapCell.map[1][2]
 
     def test_cellMap_createGraph(self):
         parser = parseChallenge(f"./challenges/a_example.in")
         mapCell = CellMap(parser)
-        print(mapCell)
         neighborMapAlt1 = [[ mapCell.map[0][1], mapCell.map[0][2], mapCell.map[0][3], mapCell.map[0][4], mapCell.map[0][0]],
                            [ mapCell.map[1][1], mapCell.map[1][2], mapCell.map[1][3], mapCell.map[1][4], mapCell.map[1][0]],
                            [ mapCell.map[2][1], mapCell.map[2][2], mapCell.map[2][3], mapCell.map[2][4], mapCell.map[2][0]]
@@ -93,3 +75,16 @@ class TestCellMap:
                 assert mapCell.map[row][col].getNeighbor(1) == neighborMapAlt1[row][col]
                 assert mapCell.map[row][col].getNeighbor(2)== neighborMapAlt2[row][col]
                 assert mapCell.map[row][col].getNeighbor(3) == neighborMapAlt3[row][col]
+
+    def test_cellMap_defineTargetRange(self):
+        parser = parseChallenge(f"./challenges/a_example.in")
+        mapCell = CellMap(parser)
+        targetRange = [[[mapCell.map[0][4]], [mapCell.map[0][2]], [mapCell.map[0][2]], [mapCell.map[0][2],mapCell.map[0][4]], [mapCell.map[0][4]] ],
+                       [[], [], [mapCell.map[0][2]], [], [mapCell.map[0][4]]],
+                       [[], [], [], [], []]
+                       ]
+        for row in range(parser.rows):
+            for col in range(parser.columns):
+                assert len(mapCell.map[row][col].targets) == len(targetRange[row][col])
+                for t in mapCell.map[row][col].targets:
+                    assert t in targetRange[row][col]
