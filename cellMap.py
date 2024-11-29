@@ -52,7 +52,7 @@ class CellMap:
 
         assert self.startingCell is not None
 
-    def _defineTargetRange(self, parserData: ParserData) -> None: #TODO: add test
+    def _defineTargetRange(self, parserData: ParserData) -> None:
         """Defini les cellules couvertes par une target"""
         for targetPos in parserData.targets_pos:
             target = self.map[targetPos[0]][targetPos[1]]
@@ -69,7 +69,7 @@ class CellMap:
                     if self.inRange(target, cell):
                         cell.addTarget(target)
 
-    def _createGraph(self) -> None: #TODO: add test
+    def _createGraph(self) -> None:
         """Crée un graph à partir de la martice de cellule et de celle des vents"""
         assert self.startingCell is not None, "Impossible de créer le graph: startingCell is None"
         for row in range(self.rows):
