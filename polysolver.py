@@ -4,26 +4,29 @@
 """Module de résolution du projet Poly#.
 """
 
-
-
+from observer import Observer
 from polyparser import ParserData
 from simulation import ResultData, Simulation
 
 
 def solve(challenge: ParserData):
-    """Résout un challenge donné.
+    """Solve a given challenge while checking the consistency of the result
     """
     
     simulation = Simulation(challenge)
-    result = simulation.run()
+    observer = Observer(challenge)
+
+    for turn, partialResult in simulation.run():
+        assert observer.inspect(turn, partialResult)
     
-    print(f"La simulation a atteint {result.nbPoints} points. !!!!! trop fort les gars")
+    result = simulation.result()
+    
+    print(f"La simulation a atteint {result.nbPoints} points.")
     return stringifySolution(result, simulation.ROUNDS)
 
 
 def stringifySolution(result:ResultData, nbTurn:int) -> str:
-    #TODO: write it !
-
+    """Transform results in a conform textual ouput"""
     solution = ""
 
     for turn in range(nbTurn):

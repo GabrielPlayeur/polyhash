@@ -3,18 +3,19 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
+from typing import Iterator
+from rich.progress import track
 
 from brain import Brain, RandomBrain, VerifyBrain
 from cellMap import CellMap
-from objects import Wind, Cell, TargetCell, Balloon
-from polyparser import ParserData, parseChallenge
-from rich.progress import track
+from objects import Balloon
+from polyparser import ParserData
 
 @dataclass
 class ResultData:
-    #TODO: make a dataclass that can store ervery datas needed for generating the solution through <polysolver.stringifySolution>
+    #DONE: make a dataclass that can store ervery datas needed for generating the solution through <polysolver.stringifySolution>
     nbPoints: int
-    tracking: list[list[int]]
+    tracking: list[list[int]]       #every balloon has its own movement
 
 class Simulation:
     def __init__(self, parserData: ParserData) -> None:
@@ -29,20 +30,20 @@ class Simulation:
         self.current_round: int = 0
         self.map: CellMap = CellMap(parserData)
         self.balloons: list[Balloon] = [Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)]
-        self.brain: Brain = VerifyBrain()
+        self.brain: Brain = RandomBrain()
 
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
-    def run(self) -> ResultData:
+
+    def run(self) -> Iterator[tuple[int, ResultData]]:
+        """Run the simulation for the given challenge, and yield the result at each turn"""
         for _ in track(range(self.ROUNDS), "Simulation in progress..."):
-            #TODO: write down the process of making an iteration
-
             self.nextTurn()
-
             self.current_round += 1
+            
+            yield self.current_round, self.resultData
 
-        return self.resultData
 
     def nextTurn(self) -> None:
         coveredCells = set()
@@ -52,7 +53,7 @@ class Simulation:
                 continue
 
             #Moving balloon
-            altMoving = self.brain.solve(n, self.current_round)
+            altMoving = self.brain.solve(balloon)        #(n, self.current_round)
             balloon.moveAlt(altMoving)
 
             #Applying wind
@@ -69,3 +70,6 @@ class Simulation:
                 coveredCells.add(target)
             
         self.resultData.nbPoints += len(coveredCells)
+
+    def result(self) -> ResultData:
+        return self.resultData
