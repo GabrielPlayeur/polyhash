@@ -9,7 +9,3 @@ class VerifyBrain(Brain):
         with open(self.file, "r") as f:
             lines = f.readlines()
             return int(lines[turn].split()[baloonIdx])
-        
-
-
-brain = VerifyBrain()
