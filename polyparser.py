@@ -15,7 +15,7 @@ class ParserData:
     turns: int
     starting_cell: tuple[int,int]
     targets_pos: set[tuple[int,int]]
-    winds: list[list[list[int]]]
+    winds: list[list[list[tuple[int,int]]]]
 
 def parseChallenge(filename: str) -> ParserData:
     """
@@ -33,21 +33,21 @@ def parseChallenge(filename: str) -> ParserData:
         line = re.sub(r'\s*#.*', '', f.readline().strip())
         data['targets_number'], data['radius'], data['balloons'], data['turns'] = [ int(v) for v in line.split() ]
         line = re.sub(r'\s*#.*', '', f.readline().strip())
-        x,y = [ int(v) for v in line.split() ]
-        data['starting_cell'] = (x,y)
+        row,col = [ int(v) for v in line.split() ]
+        data['starting_cell'] = (row,col)
         data['targets_pos'] = set()
         for _ in range(data['targets_number']):
             line = re.sub(r'\s*#.*', '', f.readline().strip())
-            x,y = [int(v) for v in line.split()]
-            data['targets_pos'].add((x,y))
-        data['winds'] = [ [ [] for _ in range(data['columns'])] for _ in range(data['rows'])]
+            row,col = [int(v) for v in line.split()]
+            data['targets_pos'].add((row,col))
+        data['winds'] = [ [ [(0,0)] for _ in range(data['columns'])] for _ in range(data['rows'])]
         for _ in range(data['altitudes']):
             for i in range(data['rows']):
                 line = re.sub(r'\s*#.*', '', f.readline().strip())
                 colWinds = [int(v) for v in line.split()]
                 for j in range(0,len(colWinds),2):
-                    x,y = colWinds[j],colWinds[j+1]
-                    data['winds'][i][j//2].append((x,y))
+                    row,col = colWinds[j],colWinds[j+1]
+                    data['winds'][i][j//2].append((row,col))
     return ParserData(data['rows'],
                       data['columns'],
                       data['altitudes'],

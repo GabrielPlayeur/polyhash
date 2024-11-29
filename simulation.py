@@ -1,39 +1,69 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """Module.
 """
-from cells import Cell
-from wind import Wind
-from balloons import Balloon
+
+from __future__ import annotations
+from dataclasses import dataclass
+
+from brain import Brain, RandomBrain
+from cellMap import CellMap
+from objects import Wind, Cell, TargetCell, Balloon
+from polyparser import ParserData, parseChallenge
+
+@dataclass
+class ResultData:
+    #TODO: make a dataclass that can store ervery datas needed for generating the solution through <polysolver.stringifySolution>
+    nbPoints: int
+    tracking: list[list[int]]
 
 class Simulation:
-    def __init__(self) -> None:
-        self.R: int
-        self.C: int
-        self.A: int
-        self.NB_ROUND: int
-        self.current_round: int
-        self.map: tuple[tuple[Cell]]
-        self.balloons: set[Balloon]
+    def __init__(self, parserData: ParserData) -> None:
+        #Constantes
+        self.ROWS: int = parserData.rows
+        self.COLUMNS: int = parserData.columns
+        self.ALTITUDES: int = parserData.altitudes
+        self.ROUNDS: int = parserData.turns
+        self.NB_BALLOONS: int = parserData.balloons
 
-        self.initMap
-        self.initNeighborh
+        #Variables
+        self.current_round: int = 0
+        self.map: CellMap = CellMap(parserData)
+        self.balloons: list[Balloon] = [Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)]
+        self.brain: Brain = RandomBrain()
 
+        #Result
+        self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
+
+    def run(self) -> ResultData:
+        while self.current_round < self.ROUNDS:
+            #TODO: write down the process of making an iteration
+
+            self.nextTurn()
+
+            self.current_round += 1
+
+        return self.resultData
 
     def nextTurn(self) -> None:
-        for balloon in self.balloons:
-            # balloon.moveAlt() Choix de simulation
-            self.moveBalloon(balloon)
-            balloon.chooseAction() # Choix de simulation
-            balloon.next()
+        coveredCells = set()
+        for n, balloon in enumerate(self.balloons):
+            #If the balloon is lost
+            if balloon.cell is self.map.outsideCell:
+                continue
 
-    def moveBalloon(self, balloon: Balloon) -> None:
-        cell = balloon.cell
-        wind = cell.getWinds(balloon.alt)
-        if cell.x+wind.x > self.R : #TODO
-            self.balloons.remove(balloon)
-            return
-        x = 0
-        y = 0
-        balloon.cell = self.map[x][y]
+            #Moving balloon
+            altMoving = self.brain.solve(balloon)
+            balloon.moveAlt(altMoving)
+
+            #Applying wind
+            balloon.applyWind()
+
+            #Adding movement in result
+            self.resultData.tracking[n].append(altMoving)
+
+            #Counting points
+            if balloon.cell is self.map.outsideCell:
+                continue
+
+            for target in balloon.cell.targets:
+                coveredCells.add(target)
+        self.resultData.nbPoints += len(coveredCells)

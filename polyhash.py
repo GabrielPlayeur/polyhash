@@ -6,8 +6,8 @@
 
 # Vous pouvez structurer votre code en modules pour améliorer la
 # compréhension et faciliter le travail collaboratif
-from polyparser import parse_challenge
-from polysolver import solve, score_solution, save_solution
+from polyparser import parseChallenge
+from polysolver import solve, getScoreSolution, saveSolution
 
 if __name__ == "__main__":
     # On fournit ici un exemple permettant de passer un simple
@@ -26,10 +26,14 @@ if __name__ == "__main__":
                         metavar="sortie.txt")
     args = parser.parse_args()
 
-    challenge = parse_challenge(args.challenge)
+    challenge = parseChallenge(f"./challenges/{args.challenge}")
+
     solution = solve(challenge)
+
     if args.output is not None:
         # Sauvegarder le fichier généré
-        save_solution(args.output, solution)
+        saveSolution(args.output, solution)
         print(f"Solution saved in {args.output}")
-    print(f"Score: {score_solution(solution)}")
+    
+    
+    #print(f"Score: {getScoreSolution(solution)}")
