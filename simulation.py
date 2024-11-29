@@ -4,10 +4,11 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-from brain import Brain, RandomBrain
+from brain import Brain, RandomBrain, VerifyBrain
 from cellMap import CellMap
 from objects import Wind, Cell, TargetCell, Balloon
 from polyparser import ParserData, parseChallenge
+from rich.progress import track
 
 @dataclass
 class ResultData:
@@ -28,13 +29,13 @@ class Simulation:
         self.current_round: int = 0
         self.map: CellMap = CellMap(parserData)
         self.balloons: list[Balloon] = [Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)]
-        self.brain: Brain = RandomBrain()
+        self.brain: Brain = VerifyBrain()
 
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
     def run(self) -> ResultData:
-        while self.current_round < self.ROUNDS:
+        for _ in track(range(self.ROUNDS), "Simulation in progress..."):
             #TODO: write down the process of making an iteration
 
             self.nextTurn()
@@ -51,7 +52,7 @@ class Simulation:
                 continue
 
             #Moving balloon
-            altMoving = self.brain.solve(balloon)
+            altMoving = self.brain.solve(n, self.current_round)
             balloon.moveAlt(altMoving)
 
             #Applying wind
@@ -61,9 +62,10 @@ class Simulation:
             self.resultData.tracking[n].append(altMoving)
 
             #Counting points
-            if balloon.cell is self.map.outsideCell:
+            if balloon.cell is self.map.outsideCell and balloon.alt == 0:
                 continue
 
             for target in balloon.cell.targets:
                 coveredCells.add(target)
+            
         self.resultData.nbPoints += len(coveredCells)
