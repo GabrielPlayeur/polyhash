@@ -17,7 +17,7 @@ class ResultData:
     tracking: list[list[int]]       #every balloon has its own movement
 
 class Simulation:
-    def __init__(self, parserData: ParserData) -> None:
+    def __init__(self, parserData: ParserData, brain:Brain) -> None:
         #Constantes
         self.ROWS: int = parserData.rows
         self.COLUMNS: int = parserData.columns
@@ -29,7 +29,7 @@ class Simulation:
         self.current_round: int = 0
         self.map: CellMap = CellMap(parserData)
         self.balloons: list[Balloon] = [Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)]
-        self.brain: Brain = RandomBrain()
+        self.brain: Brain = brain
 
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
@@ -53,7 +53,7 @@ class Simulation:
                 continue
 
             #Moving balloon
-            altMoving = self.brain.solve(balloon)      #solve(n, self.current_round) #verifyBrain
+            altMoving = self.brain.solve(n, self.current_round) if isinstance(self.brain, VerifyBrain) else self.brain.solve(balloon)
             balloon.moveAlt(altMoving)
 
             #Applying wind

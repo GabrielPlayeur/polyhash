@@ -25,7 +25,7 @@ class Observer:
         self.parser: ParserData = parserData
         self.balloonPositions: list[XYZ] = []
         self.nbPoints = 0
-        print("\n\n__OBSERVER's_REPORT____________________________\n")
+        self.fileName:str
 
 
     def _simulatingBalloonMove(self, indexBalloon:int, move:int) -> set[XYZ]:
@@ -72,9 +72,32 @@ class Observer:
     
 
     def _init(self, partial:ResultData):
+        #managing logs
+        with open(self.fileName, "w") as f: #ersing precedents logs if exist
+            f.write("")
+        output = "\n\n__OBSERVER's_REPORT____________________________\n"
+        self._log(output)
+
+
+        #initializing variables
         for _ in partial.tracking:
             row, col = self.parser.starting_cell
             self.balloonPositions.append(XYZ(row, col, 0))
+    
+    def _log(self, output):
+        allowed = hasattr(self, "fileName")
+        if allowed and self.fileName != "-1":
+            with open(self.fileName, "a") as f:
+                print(output, file=f)
+        elif not allowed:
+            print(output)
+    
+    def generateLog(self, fileName:str):
+        assert fileName[-4:] == ".log", "not the right extension: .log"
+        self.fileName = fileName
+    
+    def noLog(self):
+        self.fileName = "-1"
 
 
     def inspect(self, turn:int, partial:ResultData) -> bool:
@@ -94,8 +117,7 @@ class Observer:
                 
 
         self.nbPoints += len(allTargetCovered)
-        print(
-        f"""Inspection at {turn}-th turn:
+        self._log(f"""Inspection at {turn}-th turn:
         -Simulated count of point: {partial.nbPoints} \t\t\t\t -Given tracking result: {partial.tracking}
         -Checked count of point: {self.nbPoints} \t\t\t\t -Recomputed balloon position: {[b for b in self.balloonPositions]}
         -Nb of balloon updated: {i} \t\t\t\t -Nb of balloon untracked: {len(partial.tracking)-i}
