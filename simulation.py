@@ -4,7 +4,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterator
-from rich.progress import track
 
 from brain import Brain, RandomBrain, VerifyBrain
 from cellMap import CellMap
@@ -38,11 +37,12 @@ class Simulation:
 
     def run(self) -> Iterator[tuple[int, ResultData]]:
         """Run the simulation for the given challenge, and yield the result at each turn"""
-        for _ in track(range(self.ROUNDS), "Simulation in progress..."):
+        for _ in range(self.ROUNDS):
             self.nextTurn()
             self.current_round += 1
             
             yield self.current_round, self.resultData
+            
 
 
     def nextTurn(self) -> None:
@@ -53,7 +53,7 @@ class Simulation:
                 continue
 
             #Moving balloon
-            altMoving = self.brain.solve(balloon)        #(n, self.current_round)
+            altMoving = self.brain.solve(balloon)      #solve(n, self.current_round) #verifyBrain
             balloon.moveAlt(altMoving)
 
             #Applying wind

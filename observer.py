@@ -24,23 +24,26 @@ class Observer:
     def __init__(self, parserData:ParserData) -> None:
         self.parser: ParserData = parserData
         self.balloonPositions: list[XYZ] = []
+        self.nbPoints = 0
+        print("\n\n__OBSERVER's_REPORT____________________________\n")
 
 
     def _simulatingBalloonMove(self, indexBalloon:int, move:int) -> set[XYZ]:
         """Re-computing the simulation"""
         balloon = self.balloonPositions[indexBalloon]
-            
 
-        if balloon.row == -1:
+        if balloon.row == -1 or balloon.alt == 0 and move == 0:
             return set()
 
         #moving the balloon
-        balloon.alt =+ self._checkAlt(balloon.alt, move)
+        balloon.alt += self._checkAlt(balloon.alt, move)
+
 
         #applying the wind
         dRow, dCol = self.parser.winds[balloon.row][balloon.col][balloon.alt]
         balloon.row = balloon.row+dRow if 0 <= balloon.row+dRow < self.parser.rows else -1
         balloon.col = (balloon.col + dCol)%self.parser.columns
+
 
         #finding target covered
         return self._targetInRange(balloon)
@@ -76,16 +79,25 @@ class Observer:
 
     def inspect(self, turn:int, partial:ResultData) -> bool:
         """Checks partial data given as input at the n-th turn"""
+
+        turn -= 1
         
         if not self.balloonPositions:
             self._init(partial)
         
-        allTargetCovered = set()
+        allTargetCovered, i = set(), 0
         for index, balloonPath in enumerate(partial.tracking):
-            if len(balloonPath) == turn:
-                targetCovered = self._simulatingBalloonMove(index, balloonPath[turn-1])
-                allTargetCovered.union(targetCovered)
+            if len(balloonPath) == turn+1:
+                targetCovered = self._simulatingBalloonMove(index, balloonPath[turn])
+                allTargetCovered.update(targetCovered)
+                i+=1
+                
 
-        nbPoints = len(allTargetCovered)
-        print(f"Inspection at {turn}-th turn:\n\t-Simulated count of point: {partial.nbPoints}\n\t-Checked count of point: {nbPoints}")
-        return nbPoints == partial.nbPoints
+        self.nbPoints += len(allTargetCovered)
+        print(
+        f"""Inspection at {turn}-th turn:
+        -Simulated count of point: {partial.nbPoints} \t\t\t\t -Given tracking result: {partial.tracking}
+        -Checked count of point: {self.nbPoints} \t\t\t\t -Recomputed balloon position: {[b for b in self.balloonPositions]}
+        -Nb of balloon updated: {i} \t\t\t\t -Nb of balloon untracked: {len(partial.tracking)-i}
+        \n""")
+        return self.nbPoints == partial.nbPoints

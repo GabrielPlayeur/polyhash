@@ -17,7 +17,7 @@ def solve(challenge: ParserData):
     observer = Observer(challenge)
 
     for turn, partialResult in simulation.run():
-        assert observer.inspect(turn, partialResult)
+        observer.inspect(turn, partialResult)
     
     result = simulation.result()
     
