@@ -1,6 +1,7 @@
 *.repr
 *.sol
 *.txt
+output/
 # Byte-compiled / optimized / DLL files
 *.pdf
 .vscode

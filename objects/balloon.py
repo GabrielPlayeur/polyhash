@@ -2,6 +2,7 @@
 """Module.
 """
 from objects import Cell
+from objects.targetCell import TargetCell
 
 class Balloon:
     def __init__(self, startCell: Cell) -> None:
@@ -23,4 +24,12 @@ class Balloon:
 
     def applyWind(self) -> None:
         """Apply the wind at the current altitude"""
+        for target in self.cell.targets:
+            assert isinstance(target, TargetCell)
+            target.coverBy.remove(self)
+
         self.cell = self.cell.getNeighbor(self.alt)
+        
+        for target in self.cell.targets:
+            assert isinstance(target, TargetCell)
+            target.coverBy.add(self)
