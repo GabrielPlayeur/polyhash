@@ -31,3 +31,20 @@ class TestCell:
             cell.getWindsByAlt(-1)
         with pytest.raises(AssertionError):
             cell.getWindsByAlt(2)
+
+    def test_cell_getNeighbor(self):
+        winds = [Wind(0, 0), Wind(1, 0), Wind(3, 0)]
+        cell = Cell(0, 0, winds)
+        n = Cell(10, 1, winds)
+        cell.neighbors = [cell, Cell(0, 1, winds), n]
+
+        with pytest.raises(AssertionError):
+            cell.getNeighbor(-1)
+            
+        with pytest.raises(AssertionError):
+            cell.getNeighbor(3)
+            
+        assert cell.getNeighbor(0) == cell
+        assert cell.getNeighbor(1) == cell.neighbors[1]
+        assert cell.getNeighbor(2) == n
+        

@@ -35,7 +35,7 @@ def stringifySolution(result:ResultData, nbTurn:int) -> str:
         
         solution = solution[:-1] + "\n"
 
-    return solution
+    return solution[:-1]
 
 
 
@@ -44,7 +44,7 @@ def getScoreSolution(file):
 
 
 def saveSolution(fileName, file):
-    assert fileName[-4:] == ".sol", "the file name has not the right extension, try again :)"
+    assert fileName[-4:] == ".txt", "the file name has not the right extension, try again :)"
     with open(fileName, "w") as f:
         f.write(file)
     print(f"The file {fileName} has been saved")
