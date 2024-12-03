@@ -4,7 +4,7 @@
 """Module de résolution du projet Poly#.
 """
 
-from brain.randomBrain import RandomBrain
+from brain import VerifyBrain, RandomBrain
 from observer import Observer
 from polyparser import ParserData
 from simulation import ResultData, Simulation
@@ -13,16 +13,18 @@ from simulation import ResultData, Simulation
 def solve(challenge: ParserData):
     """Solve a given challenge while checking the consistency of the result
     """
-    
+
+    # brain = VerifyBrain("output/d_final.txt")
     brain = RandomBrain()
     simulation = Simulation(challenge, brain)
     observer = Observer(challenge)
     #observer.noLog()
-    observer.generateLog("output/b.log")
+    #observer.generateLog("output/b.log")
 
     for turn, partialResult in simulation.run():
+        pass
         observer.inspect(turn, partialResult)
-    
+
     result = simulation.result()
     
     print(f"The simulation reached {result.nbPoints} points.")

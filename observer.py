@@ -73,8 +73,9 @@ class Observer:
 
     def _init(self, partial:ResultData):
         #managing logs
-        with open(self.fileName, "w") as f: #ersing precedents logs if exist
-            f.write("")
+        if hasattr(self, "fileName"):
+            with open(self.fileName, "w") as f: #ersing precedents logs if exist
+                f.write("")
         output = "\n\n__OBSERVER's_REPORT____________________________\n"
         self._log(output)
 
