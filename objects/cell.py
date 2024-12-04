@@ -17,7 +17,7 @@ class Cell:
         """Add target cell into the cell's targets list"""
         self.targets.append(target)
 
-    def addNeighbor(self, cell: Cell) -> None: #TODO: add test
+    def addNeighbor(self, cell: Cell) -> None:
         "add a neighbor at the n altitude, letting n be lenght of neighbors"
         self.neighbors.append(cell)
 
@@ -25,7 +25,7 @@ class Cell:
         assert len(self._winds) > alt >= 0
         return self.neighbors[alt]
 
-    def getWinds(self) -> list[Wind]: #TODO: add test
+    def getWinds(self) -> list[Wind]:
         return self._winds
 
     def getWindsByAlt(self, alt: int) -> Wind:
