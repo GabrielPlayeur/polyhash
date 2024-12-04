@@ -17,7 +17,7 @@ class ResultData:
     tracking: list[list[int]]
 
 class Simulation:
-    def __init__(self, parserData: ParserData, brain:Brain) -> None: #TODO: add test
+    def __init__(self, parserData: ParserData, brain:Brain) -> None:
         #Constantes
         self.ROWS: int = parserData.rows
         self.COLUMNS: int = parserData.columns
@@ -34,13 +34,17 @@ class Simulation:
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
-    def run(self) -> Iterator[tuple[int, ResultData]]: #TODO: add test
+    def runIter(self) -> Iterator[tuple[int, ResultData]]:
         for _ in range(self.ROUNDS):
             self.nextTurn()
 
             yield self.current_round, self.resultData
 
-    def nextTurn(self) -> None: #TODO: add test
+    def run(self) -> None:
+        for _ in range(self.ROUNDS):
+            self.nextTurn()
+
+    def nextTurn(self) -> None:
         coveredCells = set()
         for n, balloon in enumerate(self.balloons):
             #If the balloon is lost
@@ -67,5 +71,5 @@ class Simulation:
         self.resultData.nbPoints += len(coveredCells)
         self.current_round += 1
 
-    def result(self) -> ResultData: #TODO: add test
+    def result(self) -> ResultData:
         return self.resultData

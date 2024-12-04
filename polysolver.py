@@ -10,7 +10,7 @@ def solve(challenge: ParserData) -> str: #TODO: add test
     """
     brain = RandomBrain()
     simulation = Simulation(challenge, brain)
-    for _ in simulation.run():
+    for _ in simulation.runIter():
         #Add here some visualitation or some test
         pass
     result = simulation.result()
@@ -34,7 +34,7 @@ def getScoreSolution(file: str, challenge: ParserData) -> int:
     """
     brain = VerifyBrain(file)
     simulation = Simulation(challenge, brain)
-    for _ in simulation.run():
+    for _ in simulation.runIter():
         #Add here some visualitation or some test
         pass
     result = simulation.result()
