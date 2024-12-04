@@ -6,6 +6,7 @@
 
 
 
+from brain.randomBrain import RandomBrain
 from polyparser import ParserData
 from simulation import ResultData, Simulation
 
@@ -14,8 +15,14 @@ def solve(challenge: ParserData):
     """Résout un challenge donné.
     """
     
-    simulation = Simulation(challenge)
-    result = simulation.run()
+    brain = RandomBrain()
+    simulation = Simulation(challenge, brain)
+
+    for _ in simulation.run():
+        #Add here some visualitation or some test
+        pass
+
+    result = simulation.result()
     
     print(f"La simulation a atteint {result.nbPoints} points. !!!!! trop fort les gars")
     return stringifySolution(result, simulation.ROUNDS)

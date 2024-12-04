@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
+from typing import Iterator
 
 from brain import Brain, RandomBrain, VerifyBrain
 from cellMap import CellMap
 from objects import Wind, Cell, TargetCell, Balloon
 from polyparser import ParserData, parseChallenge
-from rich.progress import track
 
 @dataclass
 class ResultData:
@@ -17,7 +17,7 @@ class ResultData:
     tracking: list[list[int]]
 
 class Simulation:
-    def __init__(self, parserData: ParserData) -> None:
+    def __init__(self, parserData: ParserData, brain:Brain) -> None:
         #Constantes
         self.ROWS: int = parserData.rows
         self.COLUMNS: int = parserData.columns
@@ -29,20 +29,20 @@ class Simulation:
         self.current_round: int = 0
         self.map: CellMap = CellMap(parserData)
         self.balloons: list[Balloon] = [Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)]
-        self.brain: Brain = VerifyBrain()
+        self.brain: Brain = brain
 
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
-    def run(self) -> ResultData:
-        for _ in track(range(self.ROUNDS), "Simulation in progress..."):
+    def run(self) -> Iterator[tuple[int, ResultData]]:
+        for _ in range(self.ROUNDS):
             #TODO: write down the process of making an iteration
 
             self.nextTurn()
 
             self.current_round += 1
 
-        return self.resultData
+            yield self.current_round, self.resultData
 
     def nextTurn(self) -> None:
         coveredCells = set()
@@ -52,7 +52,7 @@ class Simulation:
                 continue
 
             #Moving balloon
-            altMoving = self.brain.solve(n, self.current_round)
+            altMoving = self.brain.solve(n, self.current_round) if isinstance(self.brain, VerifyBrain) else self.brain.solve(balloon)
             balloon.moveAlt(altMoving)
 
             #Applying wind
@@ -69,3 +69,6 @@ class Simulation:
                 coveredCells.add(target)
             
         self.resultData.nbPoints += len(coveredCells)
+
+    def result(self) -> ResultData:
+        return self.resultData
