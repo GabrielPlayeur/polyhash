@@ -8,6 +8,7 @@ from typing import Iterator
 from brain import Brain, RandomBrain, VerifyBrain
 from cellMap import CellMap
 from objects import Wind, Cell, TargetCell, Balloon
+from polyparser import ParserData
 from polyparser import ParserData, parseChallenge
 
 @dataclass
@@ -40,8 +41,6 @@ class Simulation:
 
             self.nextTurn()
 
-            self.current_round += 1
-
             yield self.current_round, self.resultData
 
     def nextTurn(self) -> None:
@@ -62,13 +61,14 @@ class Simulation:
             self.resultData.tracking[n].append(altMoving)
 
             #Counting points
-            if balloon.cell is self.map.outsideCell and balloon.alt == 0:
+            if balloon.cell is self.map.outsideCell:
                 continue
 
             for target in balloon.cell.targets:
                 coveredCells.add(target)
             
         self.resultData.nbPoints += len(coveredCells)
+        self.current_round += 1
 
     def result(self) -> ResultData:
         return self.resultData

@@ -2,7 +2,6 @@
 """Module.
 """
 from objects import Cell
-from typing import TYPE_CHECKING
 
 class Balloon:
     def __init__(self, startCell: Cell) -> None:
@@ -25,9 +24,9 @@ class Balloon:
     def applyWind(self) -> None:
         """Apply the wind at the current altitude"""
         for target in self.cell.targets:
-            target.coverBy.remove(self)
-
+            if self in target.coverBy:
+                target.coverBy.remove(self)
         self.cell = self.cell.getNeighbor(self.alt)
-        
+
         for target in self.cell.targets:
             target.coverBy.add(self)
