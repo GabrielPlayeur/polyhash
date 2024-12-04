@@ -2,13 +2,13 @@
 """Module.
 """
 from objects import Cell
-from objects.targetCell import TargetCell
+#from objects.targetCell import TargetCell
 
 class Balloon:
     def __init__(self, startCell: Cell) -> None:
         """Entity that describe a balloon and it's altitude"""
         self.cell: Cell = startCell
-        self.cellHistory: list[tuple[(Cell,int)]] #Cell -> previous Cell, int -> previous altitude
+        self.cellHistory: list[tuple[(Cell,int)]] = [] #Cell -> previous Cell, int -> previous altitude
         self.alt: int = 0
         self.altMax = len(self.cell._winds)-1
 
@@ -27,13 +27,11 @@ class Balloon:
         """Apply the wind at the current altitude"""
         
         for target in self.cell.targets:
-            assert isinstance(target, TargetCell)
             target.coverBy.remove(self)
 
         self.cell = self.cell.getNeighbor(self.alt)
         
         for target in self.cell.targets:
-            assert isinstance(target, TargetCell)
             target.coverBy.add(self)
 
 
@@ -49,6 +47,8 @@ class Balloon:
 
     
     def undo(self, numberTurn):
-        self.alt = self.cellHistory[]
+        self.cell = self.cellHistory[numberTurn][0]
+        self.alt = self.cellHistory[numberTurn][1]
+
 
 

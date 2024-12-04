@@ -8,7 +8,7 @@ from brain import Brain, RandomBrain, VerifyBrain
 from cellMap import CellMap
 from objects import Wind, Cell, TargetCell, Balloon
 from polyparser import ParserData, parseChallenge
-from rich.progress import track
+#from rich.progress import track
 
 @dataclass
 class ResultData:
@@ -83,7 +83,7 @@ class Simulation:
         for n, balloon in enumerate(self.balloons):
             self.current_round -= 1
             
-            #Reverse apply wind and altitude    
+            #Reverse apply wind and altitude
             balloon.undo(self.current_round)
 
             #Reverse the adding of points

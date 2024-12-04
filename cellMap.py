@@ -18,7 +18,7 @@ class CellMap:
         self.columns: int = parserData.columns
         self.altitudes: int = parserData.altitudes
         self.turns: int = parserData.turns
-        self.ballons: int = parserData.balloons
+        self.balloons: int = parserData.balloons
         self.radius: int = parserData.radius
         self.startingCell: Cell
         self.outsideCell: Cell = Cell(-1,-1,[])
