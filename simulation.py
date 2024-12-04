@@ -13,12 +13,11 @@ from polyparser import ParserData, parseChallenge
 
 @dataclass
 class ResultData:
-    #TODO: make a dataclass that can store ervery datas needed for generating the solution through <polysolver.stringifySolution>
     nbPoints: int
     tracking: list[list[int]]
 
 class Simulation:
-    def __init__(self, parserData: ParserData, brain:Brain) -> None:
+    def __init__(self, parserData: ParserData, brain:Brain) -> None: #TODO: add test
         #Constantes
         self.ROWS: int = parserData.rows
         self.COLUMNS: int = parserData.columns
@@ -35,15 +34,13 @@ class Simulation:
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
-    def run(self) -> Iterator[tuple[int, ResultData]]:
+    def run(self) -> Iterator[tuple[int, ResultData]]: #TODO: add test
         for _ in range(self.ROUNDS):
-            #TODO: write down the process of making an iteration
-
             self.nextTurn()
 
             yield self.current_round, self.resultData
 
-    def nextTurn(self) -> None:
+    def nextTurn(self) -> None: #TODO: add test
         coveredCells = set()
         for n, balloon in enumerate(self.balloons):
             #If the balloon is lost
@@ -66,9 +63,9 @@ class Simulation:
 
             for target in balloon.cell.targets:
                 coveredCells.add(target)
-            
+
         self.resultData.nbPoints += len(coveredCells)
         self.current_round += 1
 
-    def result(self) -> ResultData:
+    def result(self) -> ResultData: #TODO: add test
         return self.resultData

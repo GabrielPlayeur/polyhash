@@ -21,7 +21,7 @@ class Balloon:
         assert self.altMax >= self.alt+value > 0
         self.alt += value
 
-    def applyWind(self) -> None:
+    def applyWind(self) -> None: #TODO: add test
         """Apply the wind at the current altitude"""
         for target in self.cell.targets:
             if self in target.coverBy:

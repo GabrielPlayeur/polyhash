@@ -14,23 +14,17 @@ from simulation import ResultData, Simulation
 def solve(challenge: ParserData):
     """Résout un challenge donné.
     """
-    
     brain = RandomBrain()
     simulation = Simulation(challenge, brain)
-
     for _ in simulation.run():
         #Add here some visualitation or some test
         pass
-
     result = simulation.result()
-    
     print(f"La simulation a atteint {result.nbPoints} points. !!!!! trop fort les gars")
     return stringifySolution(result, simulation.ROUNDS)
 
 
 def stringifySolution(result:ResultData, nbTurn:int) -> str:
-    #TODO: write it !
-
     solution = ""
 
     for turn in range(nbTurn):
@@ -39,11 +33,8 @@ def stringifySolution(result:ResultData, nbTurn:int) -> str:
                 solution += str(result.tracking[balloon][turn]) + " "
             else:
                 solution += "0 "
-        
         solution = solution[:-1] + "\n"
-
     return solution[:-1]
-
 
 
 def getScoreSolution(file):
