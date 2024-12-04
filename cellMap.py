@@ -29,7 +29,7 @@ class CellMap:
         self._defineTargetRange(parserData)
         self._createGraph()
 
-    def _initialize(self, parserData: ParserData) -> None: #TODO: add test
+    def _initialize(self, parserData: ParserData) -> None:
         """Initialisation de la matrice de cellule"""
         self.map = []
 
