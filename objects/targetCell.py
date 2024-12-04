@@ -9,14 +9,14 @@ class TargetCell(Cell):
     def __init__(self, x: int, y: int, winds: list[Wind]) -> None:
         """Entity that describe the wind and the target cell in range of a position by beeing a target cell"""
         super().__init__(x, y, winds)
-        self.coverBy: set[Balloon] = set()
+        self.coverBy: set['Balloon'] = set()
         self._points: int = 0
 
-    def addBalloon(self, balloon: Balloon) -> None:
+    def addBalloon(self, balloon: 'Balloon') -> None:
         """Add balloon to the target cell area"""
         self.coverBy.add(balloon)
 
-    def removeBalloon(self, balloon: Balloon) -> None:
+    def removeBalloon(self, balloon: 'Balloon') -> None:
         """Remove balloon from the target cell area
 
         args:

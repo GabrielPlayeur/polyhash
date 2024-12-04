@@ -3,12 +3,13 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
+from typing import Iterator
 
 from brain import Brain, RandomBrain, VerifyBrain
 from cellMap import CellMap
 from objects import Wind, Cell, TargetCell, Balloon
+from polyparser import ParserData
 from polyparser import ParserData, parseChallenge
-#from rich.progress import track
 
 @dataclass
 class ResultData:
@@ -17,7 +18,7 @@ class ResultData:
     tracking: list[list[int]]
 
 class Simulation:
-    def __init__(self, parserData: ParserData) -> None:
+    def __init__(self, parserData: ParserData, brain:Brain) -> None:
         #Constantes
         self.ROWS: int = parserData.rows
         self.COLUMNS: int = parserData.columns
@@ -29,19 +30,19 @@ class Simulation:
         self.current_round: int = 0
         self.map: CellMap = CellMap(parserData)
         self.balloons: list[Balloon] = [Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)]
-        self.brain: Brain = VerifyBrain()
+        self.brain: Brain = brain
         self.pointHistory = []
 
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
-    def run(self) -> ResultData:
-        for _ in track(range(self.ROUNDS), "Simulation in progress..."):
+    def run(self) -> Iterator[tuple[int, ResultData]]:
+        for _ in range(self.ROUNDS):
             #TODO: write down the process of making an iteration
 
             self.nextTurn()
 
-        return self.resultData
+            yield self.current_round, self.resultData
 
     def nextTurn(self) -> None:
         coveredTargets = set()
@@ -55,7 +56,7 @@ class Simulation:
             balloon.appendHistory(self.current_round, balloon.alt)
 
             #Moving balloon
-            altMoving = self.brain.solve(n, self.current_round)
+            altMoving = self.brain.solve(n, self.current_round) if isinstance(self.brain, VerifyBrain) else self.brain.solve(balloon)
             balloon.moveAlt(altMoving)
 
             #Applying wind
@@ -65,7 +66,7 @@ class Simulation:
             self.resultData.tracking[n].append(altMoving)
 
             #Counting points
-            if balloon.cell is self.map.outsideCell and balloon.alt == 0:
+            if balloon.cell is self.map.outsideCell:
                 continue
 
             for target in balloon.cell.targets:
@@ -89,6 +90,6 @@ class Simulation:
             #Reverse the adding of points
             self.resultData.nbPoints = self.pointHistory[self.current_round]
 
-            
 
-            
+    def result(self) -> ResultData:
+        return self.resultData
