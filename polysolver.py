@@ -14,16 +14,16 @@ def solve(challenge: ParserData):
     """Solve a given challenge while checking the consistency of the result
     """
 
-    # brain = VerifyBrain("output/d_final.txt")
-    brain = RandomBrain()
+    brain = VerifyBrain("output/a_sol.txt")
+    # brain = RandomBrain()
     simulation = Simulation(challenge, brain)
-    observer = Observer(challenge)
+    #observer = Observer(challenge)
     #observer.noLog()
     #observer.generateLog("output/b.log")
 
     for turn, partialResult in simulation.run():
+        #observer.inspect(turn, partialResult)
         pass
-        observer.inspect(turn, partialResult)
 
     result = simulation.result()
     
