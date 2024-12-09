@@ -11,13 +11,13 @@ from simulation import ResultData
 class Tree:
     def __init__(self, graph:CellMap) -> None:
         self.graph:CellMap = graph
-        self.root:Node = Node(self.graph.startingCell, alt=0, stage=0, sum=0, points=0)
+        self.root:Node = Node(self.graph.startingCell, alt=0, stage=0, sum=0)
         self.explored: dict[int, set[TargetCell]] = {}
      
-    def construct(self, increaseRate=30) -> None:
+    def construct(self, increaseRate=500) -> None:
         """Build a linear growth tree exploring all path worth of being explored."""
         size = 1
-        currentStage = 0
+        currentStage = 0        #corresponding the stage of the nextNode not the node itself
         nbOfNodes = lambda stage: stage*increaseRate + 1
 
         def pushOrForget(p:list, stage:int, node:Node) -> list:
@@ -29,6 +29,7 @@ class Tree:
 
         stack = deque()
         nextStagePQueue = [self.root, ]
+        print("\nBuilding the tree ...")
 
         while stack or nextStagePQueue:
             if not stack:
@@ -37,9 +38,10 @@ class Tree:
                 currentStage += 1
                 if currentStage%5 == 0:
                     nbNode = min(size, nbOfNodes(currentStage))
-                    print(f"Nodes created on stage {currentStage}: {nbNode} nodes explored, {max(size-nbNode, 0)} nodes aborted")
+                    print(f"    | Nodes created on stage {currentStage}: {nbNode} nodes explored, {max(size-nbNode, 0)} nodes aborted")
             
             node = stack.popleft()
+            assert node.stage == currentStage-1
 
 
             for alt in self._directions(node):
@@ -47,15 +49,8 @@ class Tree:
                 if cell is self.graph.outsideCell:
                     continue
 
-                #Counting points
-                if self.explored and cell.targets and self.explored.get(node.stage+1):
-                    points = 0
-                    for target in cell.targets:
-                        if target in self.explored[node.stage+1]:
-                            points += 1
-                else:
-                    points = len(cell.targets)
-                nextNode = Node(cell=cell, alt=alt, stage=node.stage+1, sum=node.sum+node.points, points=points)
+                #Creating node
+                nextNode = Node(cell=cell, alt=alt, stage=node.stage+1, sum=node.sum+node.points)
                 node.addChild(nextNode)
                 size += 1
 
@@ -81,7 +76,30 @@ class Tree:
         return choice
     
 
-    def bestPath(self) -> deque[Node]:
+    def refresh(self) -> None:
+        """Refresh the tree after a path has been chosen"""
+
+        stack = deque([self.root])
+
+        while stack:
+            node = stack.popleft()
+
+            exploredAtStage = self.explored.get(node.stage)
+            if exploredAtStage:
+                # print([str(s) for s in exploredAtStage])
+                for target in node.cell.targets:
+                    if target in exploredAtStage:
+                        print("has been decr: ", node)
+                        node.decrPointAndSum()
+                        print("has been decr: ", node)
+                        self.explored[node.stage].remove(target)
+
+            for child in node.children:
+                stack.append(child)
+
+    
+
+    def bestPath(self) -> tuple[int, deque[Node]]:
         """Browse the tree to find the best path. Once the path is done being computed it's added to the explored dict"""
         path:deque[Node] = deque()
         best = deque()
@@ -111,22 +129,24 @@ class Tree:
                 for child in reversed(node.children):
                     queue.append(child)
         
-        best.popleft() #Remove the useless first node
         print(f"\nBest path found with {bestScore} points")
         print(f"{i} node, {y} leave")
         self._addInExplored(path=best)
-        return best
+        return bestScore, best
     
-    def findNBestPath(self, n:int) -> deque[deque[Node]]:
-        """Reset the tree and then, construct a new one find the best path add it to explored and repeat n times"""
+    def findNBestPath(self) -> tuple[int, deque[deque[Node]]]:
+        """Reset the tree and then, construct a new one find the best path add it to explored and repeat n times where n is the number of balloon"""
         bestPaths = deque()
         self.reset()
-        for _ in range(n):
-            self.construct()
-            path = self.bestPath()
+        self.construct()
+        points = 0
+        for _ in range(self.graph.ballons):
+            p, path = self.bestPath()
             bestPaths.append(path)
-        self.reset()
-        return bestPaths
+            print("sum : ", path[-1].sum)
+            points += p
+            self.refresh()
+        return points, bestPaths
 
     def reset(self) -> None:
         self.root.children = deque()
@@ -136,15 +156,17 @@ class Tree:
         """Add a path in the explored dict, so the nexts paths will not re-compute the same path, i.e some target are now taken"""
         for n, node in enumerate(path):
             if not self.explored.get(n):
-                self.explored[n] = {node.cell}
+                self.explored[n] = {node.cell, }
             else:
                 self.explored[n].add(node.cell)
+            print(f"at {n}: ", node.cell)
 
 
+    #Traduction methods
     def pathToMove(self, path:deque[Node]) -> list[int]:
-        """Translate a list of node a.k.a a path to a list of move"""
+        """Translate a list of node a.k.a path to a list of move"""
         moves = []
-        prevAlt = 0
+        prevAlt = path.popleft().alt
         for node in path:
                 dAlt = node.alt - prevAlt
                 moves.append(dAlt)
@@ -152,20 +174,34 @@ class Tree:
         
         return moves
 
-    def pathsToResult(self, paths:list[deque[Node]]) -> ResultData:
-        """Translate lists of node aka paths to a ResultData conform to generate a solution"""
-        #TODO: make this method
-        return ResultData(0, [[]])
+    def pathsToResult(self, points:int, paths:deque[deque[Node]]) -> ResultData:
+        """Translate lists of node i.e paths to a ResultData conform to generate a solution"""
+        moves = []
+        for path in paths:
+            moves.append(self.pathToMove(path))
+        return ResultData(points, moves)
+    
+    #Automatized resolution
+    def solve(self) -> ResultData:
+        """Use all the methods of tree to solve a challenge"""
+        points, paths = self.findNBestPath()
+        return self.pathsToResult(points, paths)
+    
 
 
 if __name__ == "__main__":
-    name = "c_medium"
     name = "d_final"
+    name = "c_medium"
     name = "a_example"
     name = "b_small"
     parser = parseChallenge(f'challenges/{name}.in')
     map = CellMap(parser)
     tree = Tree(map)
-    tree.construct()
-    path = tree.bestPath()
-    print(len(path), tree.pathToMove(path))
+
+    from polysolver import stringifySolution, saveSolution
+    result = tree.solve()
+    saveSolution(f"output/{name}_tree.txt", stringifySolution(result, map.turns))
+    
+    # tree.construct()
+    # _, path = tree.bestPath()
+    # print(len(path), tree.pathToMove(path))

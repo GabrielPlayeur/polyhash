@@ -7,19 +7,30 @@ from objects.cell import Cell
 
 
 class Node:
-    def __init__(self, cell:Cell, alt:int, stage:int, sum:int, points:int) -> None:
+    def __init__(self, cell:Cell, alt:int, stage:int, sum:int) -> None:
         self.cell = cell
         self.alt = alt
         self.children:deque[Node] = deque()
         self.stage:int = stage
-        self.points:int = points
+        self.points:int = len(cell.targets)
         self.sum = sum                          #excluding the current number of points
         self.ema:float = self._computeEma()     #exponential mobile average
     
     def addChild(self, node:'Node'):
-        assert type(node) == Node
+        assert isinstance(node, Node)
         self.children.append(node)
     
+    def resetChild(self):
+        self.children = deque()
+        
+    def decrPointAndSum(self, amount=1):
+        assert self.points-amount >= 0
+        assert self.sum-amount >= 0
+        self.points -= amount
+        self.sum -= amount
+        self.ema = self._computeEma()
+
+
     def isLeave(self) -> bool:
         return len(self.children) == 0
     
