@@ -13,7 +13,7 @@ class Node:
         self.children:deque[Node] = deque()
         self.stage:int = stage
         self.points:int = len(cell.targets)
-        self.sum = sum                          #excluding the current number of points
+        self.sum = sum                          #excluding the current number of points -> BEFORE this node
         self.ema:float = self._computeEma()     #exponential mobile average
     
     def addChild(self, node:'Node'):
@@ -24,18 +24,22 @@ class Node:
         self.children = deque()
         
     def decrPointAndSum(self, amount=1):
-        assert self.points-amount >= 0
-        assert self.sum-amount >= 0
-        self.points -= amount
-        self.sum -= amount
+        # assert self.points-amount >= 0
+        # assert self.sum-amount >= 0
+        self.points -= amount if self.points-amount >= 0 else 0
+        self.sum -= amount if self.sum-amount >= 0 else 0
         self.ema = self._computeEma()
+
+    def refreshSum(self, sum:int):
+        """<sum> is the amount of points accumulated BEFORE this node"""
+        self.sum = sum + self.points
 
 
     def isLeave(self) -> bool:
         return len(self.children) == 0
     
     def __repr__(self) -> str:
-        return f"{self.cell}|alt: {self.alt}|points:{self.points}"
+        return f"{self.cell}| a:{self.alt}| p:{self.points}| s:{self.sum}| e:{self.ema}"
     
     def _computeEma(self) -> float:
         return (self.sum + self.points*3)/4

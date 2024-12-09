@@ -14,7 +14,7 @@ def solve(challenge: ParserData):
     """Solve a given challenge while checking the consistency of the result
     """
 
-    brain = VerifyBrain("output/a_sol.txt")
+    brain = VerifyBrain("output/b_small_tree.txt")
     # brain = RandomBrain()
     simulation = Simulation(challenge, brain)
     #observer = Observer(challenge)

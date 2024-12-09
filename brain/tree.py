@@ -12,7 +12,7 @@ class Tree:
     def __init__(self, graph:CellMap) -> None:
         self.graph:CellMap = graph
         self.root:Node = Node(self.graph.startingCell, alt=0, stage=0, sum=0)
-        self.explored: dict[int, set[TargetCell]] = {}
+        self.coveredTarget: dict[int, set[TargetCell]] = {}
      
     def construct(self, increaseRate=500) -> None:
         """Build a linear growth tree exploring all path worth of being explored."""
@@ -84,19 +84,22 @@ class Tree:
         while stack:
             node = stack.popleft()
 
-            exploredAtStage = self.explored.get(node.stage)
+            exploredAtStage = self.coveredTarget.get(node.stage)
             if exploredAtStage:
                 # print([str(s) for s in exploredAtStage])
                 for target in node.cell.targets:
                     if target in exploredAtStage:
-                        print("has been decr: ", node)
+                        print("has been decr: ", node, end="")
                         node.decrPointAndSum()
-                        print("has been decr: ", node)
-                        self.explored[node.stage].remove(target)
+                        print("\t->\t", node)
+                        self.coveredTarget[node.stage].remove(target)
+            
 
             for child in node.children:
+                child.refreshSum(node.sum)
                 stack.append(child)
 
+        
     
 
     def bestPath(self) -> tuple[int, deque[Node]]:
@@ -114,25 +117,47 @@ class Tree:
             while path and node not in path[-1].children:
                 path.pop()
 
+            #counting points
+            exploredAtStage = self.coveredTarget.get(node.stage)
+            if exploredAtStage:
+                for target in node.cell.targets:
+                    if target in exploredAtStage:
+                        node.decrPointAndSum()
+
             #treatement
             path.append(node)
             i+=1
             if node.isLeave():
                 y += 1
-                if node.sum >= bestScore:
+                if node.sum > bestScore:
                     bestScore = node.sum
                     best = path.copy()
 
-                    for node in best:
-                        assert 0 <= node.alt <= self.graph.altitudes
+                    # print("new best road:")
+                    # for node in best:
+                    #     print("\t"+str(node))
             else:
                 for child in reversed(node.children):
+                    if exploredAtStage:
+                        child.refreshSum(node.sum)
                     queue.append(child)
         
         print(f"\nBest path found with {bestScore} points")
         print(f"{i} node, {y} leave")
-        self._addInExplored(path=best)
         return bestScore, best
+    
+    def addInCovered(self, path) -> None:
+        """Add a path in the explored dict, so the nexts paths will not re-compute the same path, i.e some target are now taken"""
+        for n, node in enumerate(path):
+            if not self.coveredTarget.get(n):
+                self.coveredTarget[n] = set(node.cell.targets)
+            else:
+                self.coveredTarget[n].update(node.cell.targets)
+            # print(f"at {n}: ", node.cell)
+
+    def reset(self) -> None:
+        self.root.children = deque()
+        self.coveredTarget = {}
     
     def findNBestPath(self) -> tuple[int, deque[deque[Node]]]:
         """Reset the tree and then, construct a new one find the best path add it to explored and repeat n times where n is the number of balloon"""
@@ -142,25 +167,12 @@ class Tree:
         points = 0
         for _ in range(self.graph.ballons):
             p, path = self.bestPath()
+            self.addInCovered(path)
             bestPaths.append(path)
-            print("sum : ", path[-1].sum)
             points += p
-            self.refresh()
+            # self.refresh()
+            print(self.pathToMove(path))
         return points, bestPaths
-
-    def reset(self) -> None:
-        self.root.children = deque()
-        self.explored = {}
-    
-    def _addInExplored(self, path) -> None:
-        """Add a path in the explored dict, so the nexts paths will not re-compute the same path, i.e some target are now taken"""
-        for n, node in enumerate(path):
-            if not self.explored.get(n):
-                self.explored[n] = {node.cell, }
-            else:
-                self.explored[n].add(node.cell)
-            print(f"at {n}: ", node.cell)
-
 
     #Traduction methods
     def pathToMove(self, path:deque[Node]) -> list[int]:
@@ -185,15 +197,16 @@ class Tree:
     def solve(self) -> ResultData:
         """Use all the methods of tree to solve a challenge"""
         points, paths = self.findNBestPath()
+        print("_"*50,f"\n\nSome of path: {points}\n")
         return self.pathsToResult(points, paths)
     
 
 
 if __name__ == "__main__":
     name = "d_final"
-    name = "c_medium"
     name = "a_example"
     name = "b_small"
+    name = "c_medium"
     parser = parseChallenge(f'challenges/{name}.in')
     map = CellMap(parser)
     tree = Tree(map)
@@ -204,4 +217,6 @@ if __name__ == "__main__":
     
     # tree.construct()
     # _, path = tree.bestPath()
-    # print(len(path), tree.pathToMove(path))
+    # print([[str(k)+":"+str(s) for s in v] for k,v in tree.coveredTarget.items()])
+    # tree.refresh()
+    
