@@ -2,15 +2,17 @@ from .brainInit import Brain, Balloon
 
 
 class VerifyBrain(Brain):
-    def __init__(self, fileName):
-        assert fileName is not None
+    def __init__(self, name):
+        self.file = name
         self.lines: list[str]
-        self.fileName:str = fileName
+        self.splitLines: dict[str, list[str]] = {}
         self._load()
 
     def _load(self):
-        with open(self.fileName, "r") as f:
+        with open(self.file, "r") as f:
             self.lines = f.readlines()
 
     def solve(self, baloonIdx, turn) -> int:
-        return int(self.lines[turn].split()[baloonIdx])
+        if self.splitLines.get(turn) is None:
+            self.splitLines[turn] = self.lines[turn].split()
+        return int(self.splitLines[turn][baloonIdx])

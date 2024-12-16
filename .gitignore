@@ -1,7 +1,6 @@
 *.repr
 *.sol
 *.txt
-*.log
 output/
 # Byte-compiled / optimized / DLL files
 *.pdf

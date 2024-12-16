@@ -7,8 +7,9 @@ from typing import Iterator
 
 from brain import Brain, RandomBrain, VerifyBrain
 from cellMap import CellMap
-from objects import Balloon
+from objects import Wind, Cell, TargetCell, Balloon
 from polyparser import ParserData
+from polyparser import ParserData, parseChallenge
 
 @dataclass
 class ResultData:
@@ -34,16 +35,12 @@ class Simulation:
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
-
     def run(self) -> Iterator[tuple[int, ResultData]]:
         """Run the simulation for the given challenge, and yield the result at each turn"""
         for _ in range(self.ROUNDS):
             self.nextTurn()
-            self.current_round += 1
-            
-            yield self.current_round, self.resultData
-            
 
+            yield self.current_round, self.resultData
 
     def nextTurn(self) -> None:
         coveredCells = set()
@@ -63,13 +60,14 @@ class Simulation:
             self.resultData.tracking[n].append(altMoving)
 
             #Counting points
-            if balloon.cell is self.map.outsideCell and balloon.alt == 0:
+            if balloon.cell is self.map.outsideCell:
                 continue
 
             for target in balloon.cell.targets:
                 coveredCells.add(target)
             
         self.resultData.nbPoints += len(coveredCells)
+        self.current_round += 1
 
     def result(self) -> ResultData:
         return self.resultData

@@ -5,7 +5,6 @@
 """
 
 from brain import VerifyBrain, RandomBrain
-from observer import Observer
 from polyparser import ParserData
 from simulation import ResultData, Simulation
 
