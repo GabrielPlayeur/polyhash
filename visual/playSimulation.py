@@ -1,6 +1,7 @@
 import sys
 import os
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ from simulation import Simulation
 from polyparser import parseChallenge
 from polysolver import stringifySolution, saveSolution
 from objects import TargetCell
-from brain import RandomBrain
+from brain import RandomBrain, VerifyBrain
 
 class Visual:
     def __init__(self, name):
@@ -24,7 +25,7 @@ class Visual:
                           "blue": (0,0.0, 1.0),
                           "green": (0,0.5019607843137255,0.0)}
 
-        self.sim = Simulation(parseChallenge(f"./challenges/{name}.in"), RandomBrain())
+        self.sim = Simulation(parseChallenge(f"./challenges/{name}.in"), VerifyBrain("output/c_medium_tree.txt"))
         self.saved = False
 
     def create(self):
@@ -147,9 +148,9 @@ class Visual:
             plt.close(self.fig)
 
 if __name__ == '__main__':
-    name = "d_final"
     name = "a_example"
     name = "b_small"
     name = "c_medium"
+    name = "d_final"
     v = Visual(name)
     v.create()
