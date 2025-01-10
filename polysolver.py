@@ -3,12 +3,13 @@
 
 from brain import RandomBrain, VerifyBrain
 from polyparser import ParserData
-from simulation import ResultData, Simulation
+from simulation import ResultData, Simulation, closestBrain
 
 def solve(challenge: ParserData) -> str: #TODO: add test
     """Résout un challenge donné.
     """
     brain = RandomBrain()
+    brain = closestBrain(challenge.turns)
     simulation = Simulation(challenge, brain)
     for _ in simulation.runIter():
         #Add here some visualitation or some test

@@ -22,7 +22,7 @@ class Cell:
         self.neighbors.append(cell)
 
     def getNeighbor(self, alt: int) -> Cell:
-        assert len(self._winds) > alt >= 0
+        assert len(self._winds) > alt >= 0, f"alt: {alt}/{len(self._winds)}"
         return self.neighbors[alt]
 
     def getWinds(self) -> list[Wind]:
