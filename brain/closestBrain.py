@@ -3,6 +3,7 @@ from collections import defaultdict, deque
 from functools import cache
 from math import inf
 
+#TODO: add doc
 class closestBrain(Brain):
     def __init__(self, maxTurn) -> None:
         self.maxTurn = maxTurn

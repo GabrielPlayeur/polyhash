@@ -1,6 +1,7 @@
 import os
 from .brainInit import Brain
 
+#TODO: add doc
 class VerifyBrain(Brain):
     def __init__(self, name: str) -> None:
         self.file = name
