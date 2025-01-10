@@ -54,6 +54,7 @@ class CellMap:
 
     def _defineTargetRange(self, parserData: ParserData) -> None:
         """Defini les cellules couvertes par une target"""
+        ratio = 0
         for targetPos in parserData.targets_pos:
             target = self.map[targetPos[0]][targetPos[1]]
 
@@ -68,6 +69,7 @@ class CellMap:
                     cell = self.map[row][col%self.columns]
                     if self.inRange(target, cell):
                         cell.addTarget(target)
+                        ratio += 1
 
     def _createGraph(self) -> None:
         """Crée un graph à partir de la martice de cellule et de celle des vents"""

@@ -32,8 +32,6 @@ if __name__ == "__main__":
 
     if args.output is not None:
         # Sauvegarder le fichier généré
-        saveSolution(args.output, solution)
-        print(f"Solution saved in {args.output}")
-    
+        saveSolution(args.output, solution)    
     
     #print(f"Score: {getScoreSolution(solution)}")

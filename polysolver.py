@@ -6,7 +6,7 @@ from polyparser import ParserData
 from simulation import ResultData, Simulation, closestBrain
 
 def solve(challenge: ParserData) -> str: #TODO: add test
-    """Résout un challenge donné.
+    """Solve a given challenge while checking the consistency of the result
     """
     brain = RandomBrain()
     brain = closestBrain(challenge.turns)
@@ -15,12 +15,13 @@ def solve(challenge: ParserData) -> str: #TODO: add test
         #Add here some visualitation or some test
         pass
     result = simulation.result()
-    print(f"La simulation a atteint {result.nbPoints} points. !!!!! trop fort les gars")
+    print(f"The simulation reached {result.nbPoints} points.")
     return stringifySolution(result, simulation.ROUNDS)
 
-def stringifySolution(result: ResultData, nbTurn: int) -> str:
-    solution = ""
 
+def stringifySolution(result:ResultData, nbTurn:int) -> str:
+    """Transform results in a conform textual ouput"""
+    solution = ""
     for turn in range(nbTurn):
         for balloon in range(len(result.tracking)):
             if len(result.tracking[balloon]) > turn:

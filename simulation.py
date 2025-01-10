@@ -13,8 +13,9 @@ from polyparser import ParserData, parseChallenge
 
 @dataclass
 class ResultData:
+    #DONE: make a dataclass that can store ervery datas needed for generating the solution through <polysolver.stringifySolution>
     nbPoints: int
-    tracking: list[list[int]]
+    tracking: list[list[int]]       #every balloon has its own movement
 
 class Simulation:
     def __init__(self, parserData: ParserData, brain: Brain) -> None:
@@ -35,6 +36,7 @@ class Simulation:
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
     def runIter(self) -> Iterator[tuple[int, ResultData]]:
+        """Run the simulation for the given challenge, and yield the result at each turn"""
         for _ in range(self.ROUNDS):
             self.nextTurn()
 
