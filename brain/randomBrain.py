@@ -1,6 +1,7 @@
 import random
 from .brainInit import Brain, Balloon
 
+#TODO: add doc
 class RandomBrain(Brain):
     def solve(self, balloon: Balloon) -> int:
         choiceAct = [0]

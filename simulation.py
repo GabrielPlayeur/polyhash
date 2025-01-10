@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterator
 
-from brain import Brain, RandomBrain, VerifyBrain
+from brain import Brain, RandomBrain, VerifyBrain, closestBrain
 from cellMap import CellMap
 from objects import Wind, Cell, TargetCell, Balloon
 from polyparser import ParserData
@@ -18,7 +18,7 @@ class ResultData:
     tracking: list[list[int]]       #every balloon has its own movement
 
 class Simulation:
-    def __init__(self, parserData: ParserData, brain:Brain) -> None:
+    def __init__(self, parserData: ParserData, brain: Brain) -> None:
         #Constantes
         self.ROWS: int = parserData.rows
         self.COLUMNS: int = parserData.columns
@@ -35,12 +35,16 @@ class Simulation:
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
 
-    def run(self) -> Iterator[tuple[int, ResultData]]:
+    def runIter(self) -> Iterator[tuple[int, ResultData]]:
         """Run the simulation for the given challenge, and yield the result at each turn"""
         for _ in range(self.ROUNDS):
             self.nextTurn()
 
             yield self.current_round, self.resultData
+
+    def run(self) -> None:
+        for _ in range(self.ROUNDS):
+            self.nextTurn()
 
     def nextTurn(self) -> None:
         coveredCells = set()
@@ -50,7 +54,16 @@ class Simulation:
                 continue
 
             #Moving balloon
-            altMoving = self.brain.solve(n, self.current_round) if isinstance(self.brain, VerifyBrain) else self.brain.solve(balloon)
+            if isinstance(self.brain, VerifyBrain):
+                altMoving = self.brain.solve(n, self.current_round) 
+            elif isinstance(self.brain, RandomBrain):
+                altMoving = self.brain.solve(balloon)
+            elif isinstance(self.brain, closestBrain):
+                altMoving = self.brain.solve(balloon, self.map.map)
+            else:
+                print('ERREUR')
+                altMoving = 0
+
             balloon.moveAlt(altMoving)
 
             #Applying wind
@@ -65,7 +78,7 @@ class Simulation:
 
             for target in balloon.cell.targets:
                 coveredCells.add(target)
-            
+
         self.resultData.nbPoints += len(coveredCells)
         self.current_round += 1
 

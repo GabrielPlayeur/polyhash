@@ -1,15 +1,11 @@
 from collections import deque
 from heapq import heappush, heapreplace
-import math
-from node import Node
+from .node import Node
 from cellMap import CellMap
 from objects import TargetCell
-
 from objects.cell import Cell
 from polyparser import parseChallenge
-from polysolver import stringifySolution, saveSolution
 from simulation import ResultData
-
 
 class TreeBrain:
     def __init__(self, graph:CellMap, deepness:int, debugInfo=False) -> None:
@@ -47,7 +43,7 @@ class TreeBrain:
         stage = 0
         nbOfNodes = lambda stage: stage*self.deepness + 1
         # nbOfNodes = lambda stage: math.log(stage if stage > 2 else 2)*self.deepness
-        
+
         print("\nBuilding the tree ...") if self.debugInfo else None
 
         def pushOrForget(p:list, stage:int, node:Node) -> list:
@@ -97,7 +93,7 @@ class TreeBrain:
             choice.append(node.alt-1)
 
         return choice
-    
+
     def _pointForNode(self, cell:Cell, stage:int) -> int:
         """Compute the number of point for a node"""
         points = 0
@@ -122,7 +118,7 @@ class TreeBrain:
         while node.hasParent():     # type: ignore
             node = node.parent      # type: ignore
             path.appendleft(node)   # type: ignore
-        
+
         print(f"%\nBest path with {path[-1].sum} points") if self.debugInfo else ""
         return path
 
@@ -132,7 +128,6 @@ class TreeBrain:
         for n, node in enumerate(path):
             self.coveredTarget[n] = set(node.cell.targets)    # type: ignore
         return self.coveredTarget
-    
 
     #Traduction methods
     def pathToMove(self, path:deque[Node]) -> list[int]:
@@ -144,7 +139,7 @@ class TreeBrain:
                 moves.append(dAlt)
                 prevAlt = node.alt
         return moves
-    
+
     def solve(self) -> ResultData:
         """Construct a tree find the best path add it to explored and repeat n times where n is the number of balloon"""
         result = ResultData(0, [])

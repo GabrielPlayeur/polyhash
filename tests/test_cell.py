@@ -40,11 +40,22 @@ class TestCell:
 
         with pytest.raises(AssertionError):
             cell.getNeighbor(-1)
-            
         with pytest.raises(AssertionError):
             cell.getNeighbor(3)
-            
         assert cell.getNeighbor(0) == cell
         assert cell.getNeighbor(1) == cell.neighbors[1]
         assert cell.getNeighbor(2) == n
-        
+
+    def test_cell_addNeighbor(self):
+        winds = [Wind(0, 0), Wind(1, 0), Wind(3, 0)]
+        cell = Cell(0, 0, winds)
+        neighbor = Cell(10, 1, winds)
+        assert len(cell.neighbors)==0
+        cell.addNeighbor(neighbor)
+        assert len(cell.neighbors)==1
+
+    def test_cell_getWinds(self):
+        winds = [Wind(0, 0), Wind(1, 0), Wind(3, 0)]
+        cell = Cell(0, 0, winds)
+        assert len(cell.getWinds())==len(winds)
+        assert cell.getWinds()[0] is winds[0] and cell.getWinds()[1] is winds[1] and cell.getWinds()[2] is winds[2]

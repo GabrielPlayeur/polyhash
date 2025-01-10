@@ -6,7 +6,7 @@ from objects import Wind, Cell, TargetCell
 from polyparser import ParserData, parseChallenge
 import pickle
 
-#TODO: change doc in english
+#TODO: TOM change doc in english plsssss
 class CellMap:
     """
     Cette classe représente la carte des vents sous forme d'une matrice de cellules.
@@ -70,7 +70,6 @@ class CellMap:
                     if self.inRange(target, cell):
                         cell.addTarget(target)
                         ratio += 1
-        print(f"Map created with {ratio/(self.rows*self.columns)*100}% cells covered")
 
     def _createGraph(self) -> None:
         """Crée un graph à partir de la martice de cellule et de celle des vents"""
