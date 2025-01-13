@@ -96,18 +96,23 @@ class TreeBrain(Brain):
     def _pointForNode(self, cell:Cell, stage:int) -> int:
         """Compute the number of point for a node"""
         points = 0
-        if exploredAtStage:=self.coveredTarget.get(stage):
-            for target in cell.targets:
-                if target not in exploredAtStage:
-                    points += 1
-                else:
-                    self.coveredTarget[stage].remove(target)
+        exploredAtStage = self.coveredTarget.get(stage, set())
 
-        return points or len(cell.targets)
-
+        for target in cell.targets:
+            if target not in exploredAtStage:
+                points += 1
+            else:
+                exploredAtStage.remove(target)
+        # Update coveredTarget after iteration
+        self.coveredTarget[stage] = exploredAtStage
+        return points
+        
     def bestPath(self, leaves:list[Node]) -> deque[Node]:
         """Return the best path of the tree. Use self.construct() to generate leaves"""
-        node = leaves.pop()
+        
+        # take the best leaf with largest sum
+        node = max(leaves, key=lambda x: x.sum)
+        
         path  = deque([node])
         while node.hasParent():     # type: ignore
             node = node.parent      # type: ignore
