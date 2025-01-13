@@ -1,16 +1,19 @@
 """Module de résolution du projet Poly#.
 """
 
-from brain import RandomBrain, VerifyBrain
+from brain import *
 from polyparser import ParserData
-from simulation import ResultData, Simulation, closestBrain
+from simulation import ResultData, Simulation
+from cellMap import CellMap
 
 def solve(challenge: ParserData) -> str: #TODO: add test
     """Solve a given challenge while checking the consistency of the result
     """
+    cellMap = CellMap(challenge)
     brain = RandomBrain()
-    brain = closestBrain(challenge.turns)
-    simulation = Simulation(challenge, brain)
+    brain = ClosestBrain(challenge.turns)
+    brain = TreeBrain(cellMap, deepness=500)
+    simulation = Simulation(challenge, brain, cellMap)
     for _ in simulation.runIter():
         #Add here some visualitation or some test
         pass
@@ -34,8 +37,9 @@ def stringifySolution(result:ResultData, nbTurn:int) -> str:
 def getScoreSolution(file: str, challenge: ParserData) -> int:
     """Résout un challenge donné.
     """
+    cellMap = CellMap(challenge)
     brain = VerifyBrain(file)
-    simulation = Simulation(challenge, brain)
+    simulation = Simulation(challenge, brain, cellMap)
     for _ in simulation.runIter():
         #Add here some visualitation or some test
         pass

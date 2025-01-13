@@ -2,6 +2,7 @@ import os
 from simulation import Simulation
 from polyparser import parseChallenge
 from brain import VerifyBrain
+from cellMap import CellMap
 
 class TestSimulation:
     NAME_FILE = "tests/data/test_data_verifyBrain.txt"
@@ -16,15 +17,17 @@ class TestSimulation:
     def test_simulation_init(self):
         self.verifyIfFileExist()
         challenge = parseChallenge('challenges/a_example.in')
+        cellMap = CellMap(challenge)
         brain = VerifyBrain(self.NAME_FILE)
-        sim = Simulation(challenge, brain)
+        sim = Simulation(challenge, brain, cellMap)
         assert type(sim) is Simulation
 
     def test_simulation_runIter(self):
         self.verifyIfFileExist()
         challenge = parseChallenge('challenges/a_example.in')
+        cellMap = CellMap(challenge)
         brain = VerifyBrain(self.NAME_FILE)
-        sim = Simulation(challenge, brain)
+        sim = Simulation(challenge, brain, cellMap)
         scr = [-1,1,1,3,4,5]
         mvt = [0,1,1,-1,0]
         i = 1
@@ -37,8 +40,9 @@ class TestSimulation:
     def test_simulation_nextTurn(self):
         self.verifyIfFileExist()
         challenge = parseChallenge('challenges/a_example.in')
+        cellMap = CellMap(challenge)
         brain = VerifyBrain(self.NAME_FILE)
-        sim = Simulation(challenge, brain)
+        sim = Simulation(challenge, brain, cellMap)
         scr = [1,1,3,4,5]
         mvt = [0,1,1,-1,0]
         alt = [0,1,2,1,1]
@@ -54,8 +58,9 @@ class TestSimulation:
     def test_simulation_result(self):
         self.verifyIfFileExist()
         challenge = parseChallenge('challenges/a_example.in')
+        cellMap = CellMap(challenge)
         brain = VerifyBrain(self.NAME_FILE)
-        sim = Simulation(challenge, brain)
+        sim = Simulation(challenge, brain, cellMap)
         mvt = [0,1,1,-1,0]
         assert sim.result().nbPoints==0
         assert len(sim.result().tracking)==1

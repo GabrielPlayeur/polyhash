@@ -4,7 +4,7 @@ from functools import cache
 from math import inf
 
 #TODO: add doc
-class closestBrain(Brain):
+class ClosestBrain(Brain):
     def __init__(self, maxTurn) -> None:
         self.maxTurn = maxTurn
         self.covered: dict[tuple[int,int], int] = dict()

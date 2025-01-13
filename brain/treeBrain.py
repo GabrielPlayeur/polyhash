@@ -1,14 +1,12 @@
+from .brainInit import Brain
 from collections import deque
 from heapq import heappush, heapreplace
 from .node import Node
 from cellMap import CellMap
-from objects import TargetCell
-from objects.cell import Cell
-from polyparser import parseChallenge
-from simulation import ResultData
+from objects import TargetCell, Cell
 
-class TreeBrain:
-    def __init__(self, graph:CellMap, deepness:int, debugInfo=False) -> None:
+class TreeBrain(Brain):
+    def __init__(self, graph: CellMap, deepness: int, debugInfo=False) -> None:
         """
         Initialize a Tree instance.
             -> There two majors ways of using this class:
@@ -35,6 +33,7 @@ class TreeBrain:
         self.coveredTarget: dict[int, set[TargetCell]] = {}
         self.debugInfo:bool = debugInfo
         self.deepness:int = deepness
+        self.turns: list[list[int]] = []
 
     def construct(self) -> list[Node]:
         """Build a linear/log growth tree exploring all path worth of being explored."""
@@ -135,29 +134,28 @@ class TreeBrain:
                 prevAlt = node.alt
         return moves
 
-    def solve(self) -> ResultData:
+    def solveBestPath(self) -> None:
         """Construct a tree find the best path add it to explored and repeat n times where n is the number of balloon"""
-        result = ResultData(0, [])
+        # result = ResultData(0, [])
+        nbPoints = 0
         for _ in range(self.graph.ballons):
             leaves = self.construct()
             path = self.bestPath(leaves)
             self.setCoveredTarget(path)
             mv = self.pathToMove(path)
+            self.turns.append(mv)
+            # print(mv,'\n',path)
 
-            result.tracking.append(mv)
-            result.nbPoints += path[-1].sum
+            # result.tracking.append(mv)
+            nbPoints += path[-1].sum
             print(mv, len(mv))
 
-        print("_"*50,f"\n\nSome of path: {result.nbPoints}\n")  if self.debugInfo else None
-        return result
+        print("_"*50,f"\n\nSome of path: {nbPoints}\n")  if self.debugInfo else None
+        # return result
 
-if __name__ == "__main__":
-    name = "a_example"
-    name = "d_final"
-    name = "c_medium"
-    name = "b_small"
-    parser = parseChallenge(f'challenges/{name}.in')
-    graph = CellMap(parser)
-
-    tr = TreeBrain(graph, 500, debugInfo=True)
-    tr.solve()
+    def solve(self, balloonIdx: int, turn: int) -> int:
+        assert self.graph.ballons > balloonIdx >= 0
+        assert self.graph.turns > turn >= 0
+        if len(self.turns) == 0:
+            self.solveBestPath()
+        return self.turns[balloonIdx][turn]

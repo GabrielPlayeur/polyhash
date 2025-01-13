@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 from objects import Wind, Cell, TargetCell
-from polyparser import ParserData, parseChallenge
+from polyparser import ParserData
 import pickle
 
 #TODO: TOM change doc in english plsssss

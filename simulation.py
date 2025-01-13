@@ -5,11 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterator
 
-from brain import Brain, RandomBrain, VerifyBrain, closestBrain
+from brain import *
 from cellMap import CellMap
-from objects import Wind, Cell, TargetCell, Balloon
+from objects import Balloon
 from polyparser import ParserData
-from polyparser import ParserData, parseChallenge
 
 @dataclass
 class ResultData:
@@ -18,7 +17,7 @@ class ResultData:
     tracking: list[list[int]]       #every balloon has its own movement
 
 class Simulation:
-    def __init__(self, parserData: ParserData, brain: Brain) -> None:
+    def __init__(self, parserData: ParserData, brain: Brain, cellMap: CellMap) -> None:
         #Constantes
         self.ROWS: int = parserData.rows
         self.COLUMNS: int = parserData.columns
@@ -28,7 +27,7 @@ class Simulation:
 
         #Variables
         self.current_round: int = 0
-        self.map: CellMap = CellMap(parserData)
+        self.map: CellMap = cellMap
         self.balloons: list[Balloon] = [Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)]
         self.brain: Brain = brain
 
@@ -58,10 +57,12 @@ class Simulation:
                 altMoving = self.brain.solve(n, self.current_round) 
             elif isinstance(self.brain, RandomBrain):
                 altMoving = self.brain.solve(balloon)
-            elif isinstance(self.brain, closestBrain):
+            elif isinstance(self.brain, ClosestBrain):
                 altMoving = self.brain.solve(balloon, self.map.map)
+            elif isinstance(self.brain, TreeBrain):
+                altMoving = self.brain.solve(n, self.current_round)
             else:
-                print('ERREUR')
+                print('ERREUR this brain do not exist')
                 altMoving = 0
 
             balloon.moveAlt(altMoving)
