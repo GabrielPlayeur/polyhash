@@ -1,5 +1,5 @@
 from .brainInit import Brain
-from collections import deque
+from collections import deque, defaultdict
 from heapq import heappush, heapreplace
 from .node import Node
 from cellMap import CellMap
@@ -26,106 +26,82 @@ class TreeBrain(Brain):
                 Defaults to an empty dictionary.
 
             `debugInfo` (bool, optional):
-                Flag to enable or disable debug information. If True, additional debug output will be provided during execution. Defaults to False.                
+                Flag to enable or disable debug information. If True, additional debug output will be provided during execution. Defaults to False.
         """
-
         self.graph:CellMap = graph
-        self.coveredTarget: dict[int, set[TargetCell]] = {}
+        self.coveredTarget: dict[int, set[TargetCell]] = defaultdict(set)
         self.debugInfo:bool = debugInfo
         self.deepness:int = deepness
         self.turns: list[list[int]] = []
 
-    def construct(self) -> list[Node]:
+    def construct(self) -> tuple[Node, list[Node]]:
         """Build a linear/log growth tree exploring all path worth of being explored."""
         size = 1
         llen = 0
         stage = 0
         nbOfNodes = lambda stage: stage*self.deepness + 1
         # nbOfNodes = lambda stage: math.log(stage if stage > 2 else 2)*self.deepness
-
         print("\nBuilding the tree ...") if self.debugInfo else None
 
-        def pushOrForget(p:list, stage:int, node:Node) -> list:
+        def pushOrForget(p:list, stage:int, node:Node) -> None:
             if len(p) < nbOfNodes(stage):
                 heappush(p, node)
             elif node > p[0]:
                 heapreplace(p, node)
-            return p
 
-        root:Node = Node(self.graph.startingCell, parent=None, alt=0, presum=0, points=0)
+        root: Node = Node(self.graph.startingCell, parent=None, alt=0, presum=0, points=0)
         stack = deque([root, ])
-        nextStagePQueue = []
 
-        while stage < self.graph.turns-1:
-            if not stack:
-                stack = deque(nextStagePQueue)
-                llen += len(nextStagePQueue)
-                nextStagePQueue.clear()
-                stage += 1
-
-            node = stack.popleft()
-
-            for alt in self._directions(node):
-                cell = node.cell.neighbors[alt]
-                if cell is self.graph.outsideCell:
-                    continue
-
-                points = self._pointForNode(cell, stage+1)
-                nextNode = Node(cell=cell, alt=alt, parent=node, presum=node.sum+node.points, points=points)
-                node.addChild(nextNode)
-                size += 1
-
-                #Adding node
-                nextStagePQueue = pushOrForget(nextStagePQueue, stage, nextNode)
-
+        while stage < self.graph.turns:
+            for _ in range(len(stack)):
+                node = stack.popleft()
+                for alt in self._directions(node):
+                    cell = node.cell.neighbors[alt]
+                    if cell is self.graph.outsideCell:
+                        continue
+                    points = self._pointForNode(cell, stage+1) #TODO: fix this
+                    nextNode = Node(cell=cell, alt=alt, parent=node, presum=node.sum, points=points)
+                    node.addChild(nextNode)
+                    size += 1
+                    #Adding node
+                    stack.append(nextNode)
+                    # pushOrForget(leafs, stage, nextNode)
+            stage += 1
         # print(f"%\nTree constructed with {llen} nodes and {size-llen} node aborted") if self.debugInfo else None
-        return nextStagePQueue
-
+        return root, list(stack)
 
     def _directions(self, node:Node) -> list[int]:
         """Return all move possible at the altitude of the given node"""
         choice = [node.alt,]
-
         if self.graph.altitudes > node.alt >= 0:
             choice.append(1+node.alt)
         if node.alt > 1:
             choice.append(node.alt-1)
-
         return choice
 
     def _pointForNode(self, cell:Cell, stage:int) -> int:
         """Compute the number of point for a node"""
         points = 0
-        exploredAtStage = self.coveredTarget.get(stage, set())
-
         for target in cell.targets:
-            if target not in exploredAtStage:
+            if target not in self.coveredTarget.get(stage, set()):
                 points += 1
-            else:
-                exploredAtStage.remove(target)
-        # Update coveredTarget after iteration
-        self.coveredTarget[stage] = exploredAtStage
         return points
-        
+
     def bestPath(self, leaves:list[Node]) -> deque[Node]:
         """Return the best path of the tree. Use self.construct() to generate leaves"""
-        
         # take the best leaf with largest sum
         node = max(leaves, key=lambda x: x.sum)
-        
         path  = deque([node])
         while node.hasParent():     # type: ignore
             node = node.parent      # type: ignore
             path.appendleft(node)   # type: ignore
-
         print(f"%\nBest path with {path[-1].sum} points") if self.debugInfo else ""
         return path
 
     def setCoveredTarget(self, path:deque[Node]) -> dict[int, set[TargetCell]]:
         """Add a path in the explored dict, so the nexts paths will not re-compute the same path, i.e some target are now taken"""
-        self.coveredTarget = {}
         for n, node in enumerate(path):
-            self.coveredTarget[n] = set(node.cell.targets)    # type: ignore
+            self.coveredTarget[n].update(set(node.cell.targets))    # type: ignore TODO: optimize
         return self.coveredTarget
 
     #Traduction methods
@@ -141,22 +117,16 @@ class TreeBrain(Brain):
 
     def solveBestPath(self) -> None:
         """Construct a tree find the best path add it to explored and repeat n times where n is the number of balloon"""
-        # result = ResultData(0, [])
         nbPoints = 0
         for _ in range(self.graph.ballons):
-            leaves = self.construct()
+            root, leaves = self.construct()
             path = self.bestPath(leaves)
             self.setCoveredTarget(path)
             mv = self.pathToMove(path)
             self.turns.append(mv)
-            # print(mv,'\n',path)
-
-            # result.tracking.append(mv)
             nbPoints += path[-1].sum
-            print(mv, len(mv))
-
+            print(mv, nbPoints, len(mv))
         print("_"*50,f"\n\nSome of path: {nbPoints}\n")  if self.debugInfo else None
-        # return result
 
     def solve(self, balloonIdx: int, turn: int) -> int:
         assert self.graph.ballons > balloonIdx >= 0

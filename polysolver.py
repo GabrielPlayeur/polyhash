@@ -12,7 +12,7 @@ def solve(challenge: ParserData) -> str: #TODO: add test
     cellMap = CellMap(challenge)
     brain = RandomBrain()
     brain = ClosestBrain(challenge.turns)
-    brain = TreeBrain(cellMap, deepness=500)
+    brain = TreeBrain(cellMap, deepness=500, debugInfo=True)
     simulation = Simulation(challenge, brain, cellMap)
     for _ in simulation.runIter():
         #Add here some visualitation or some test
