@@ -28,13 +28,13 @@ class TreeBrain(Brain):
             `debugInfo` (bool, optional):
                 Flag to enable or disable debug information. If True, additional debug output will be provided during execution. Defaults to False.
         """
-        self.graph:CellMap = graph
+        self.graph: CellMap = graph
         self.coveredTarget: dict[int, set[TargetCell]] = defaultdict(set)
-        self.debugInfo:bool = debugInfo
-        self.deepness:int = deepness
+        self.debugInfo: bool = debugInfo
+        self.deepness: int = deepness
         self.turns: list[list[int]] = []
 
-    def construct(self) -> tuple[Node, list[Node]]:
+    def construct(self) -> tuple[Node, Node]:
         """Build a linear/log growth tree exploring all path worth of being explored."""
         size = 1
         llen = 0
@@ -52,45 +52,49 @@ class TreeBrain(Brain):
         root: Node = Node(self.graph.startingCell, parent=None, alt=0, presum=0, points=0)
         stack = deque([root, ])
 
+        maxLeaf = root
         while stage < self.graph.turns:
+            stageCoveredTarget = self.coveredTarget.get(stage+1, set())
             for _ in range(len(stack)):
                 node = stack.popleft()
                 for alt in self._directions(node):
                     cell = node.cell.neighbors[alt]
                     if cell is self.graph.outsideCell:
                         continue
-                    points = self._pointForNode(cell, stage+1) #TODO: fix this
+                    points = self._pointForNode(cell, stageCoveredTarget) if alt > 0 else 0
                     nextNode = Node(cell=cell, alt=alt, parent=node, presum=node.sum, points=points)
                     node.addChild(nextNode)
                     size += 1
+                    if nextNode.sum >= maxLeaf.sum:
+                        maxLeaf = nextNode
                     #Adding node
                     stack.append(nextNode)
                     # pushOrForget(leafs, stage, nextNode)
             stage += 1
         # print(f"%\nTree constructed with {llen} nodes and {size-llen} node aborted") if self.debugInfo else None
-        return root, list(stack)
+        return root, maxLeaf
 
-    def _directions(self, node:Node) -> list[int]:
+    def _directions(self, node: Node) -> tuple[int] | tuple[int, int] | tuple[int, int,int]:
         """Return all move possible at the altitude of the given node"""
-        choice = [node.alt,]
+        if self.graph.altitudes > node.alt >= 0 and node.alt > 1:
+            return (node.alt, node.alt+1, node.alt-1)
         if self.graph.altitudes > node.alt >= 0:
-            choice.append(1+node.alt)
+            return (node.alt, node.alt+1)
         if node.alt > 1:
-            choice.append(node.alt-1)
-        return choice
+            return (node.alt, node.alt-1)
+        return (node.alt,)
 
-    def _pointForNode(self, cell:Cell, stage:int) -> int:
+    def _pointForNode(self, cell:Cell, stageCoveredTarget: set[TargetCell]) -> int:
         """Compute the number of point for a node"""
         points = 0
         for target in cell.targets:
-            if target not in self.coveredTarget.get(stage, set()):
+            if target not in stageCoveredTarget:
                 points += 1
         return points
 
-    def bestPath(self, leaves:list[Node]) -> deque[Node]:
+    def bestPath(self, maxLeaf: Node) -> deque[Node]:
         """Return the best path of the tree. Use self.construct() to generate leaves"""
-        # take the best leaf with largest sum
-        node = max(leaves, key=lambda x: x.sum)
+        node = maxLeaf
         path  = deque([node])
         while node.hasParent():     # type: ignore
             node = node.parent      # type: ignore
@@ -101,7 +105,7 @@ class TreeBrain(Brain):
     def setCoveredTarget(self, path:deque[Node]) -> dict[int, set[TargetCell]]:
         """Add a path in the explored dict, so the nexts paths will not re-compute the same path, i.e some target are now taken"""
         for n, node in enumerate(path):
-            self.coveredTarget[n].update(set(node.cell.targets))    # type: ignore TODO: optimize
+            self.coveredTarget[n].update(node.cell.targets)    # type: ignore
         return self.coveredTarget
 
     #Traduction methods
@@ -119,8 +123,8 @@ class TreeBrain(Brain):
         """Construct a tree find the best path add it to explored and repeat n times where n is the number of balloon"""
         nbPoints = 0
         for _ in range(self.graph.ballons):
-            root, leaves = self.construct()
-            path = self.bestPath(leaves)
+            root, maxLeaf = self.construct()
+            path = self.bestPath(maxLeaf)
             self.setCoveredTarget(path)
             mv = self.pathToMove(path)
             self.turns.append(mv)

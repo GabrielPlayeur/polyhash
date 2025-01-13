@@ -12,6 +12,7 @@ def solve(challenge: ParserData) -> str: #TODO: add test
     cellMap = CellMap(challenge)
     brain = RandomBrain()
     brain = ClosestBrain(challenge.turns)
+    brain = VerifyBrain("b_small.txt")
     brain = TreeBrain(cellMap, deepness=500, debugInfo=True)
     simulation = Simulation(challenge, brain, cellMap)
     for _ in simulation.runIter():

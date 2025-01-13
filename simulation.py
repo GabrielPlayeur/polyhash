@@ -74,7 +74,7 @@ class Simulation:
             self.resultData.tracking[n].append(altMoving)
 
             #Counting points
-            if balloon.cell is self.map.outsideCell:
+            if balloon.cell is self.map.outsideCell or balloon.alt == 0:
                 continue
 
             for target in balloon.cell.targets:
