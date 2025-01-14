@@ -18,7 +18,7 @@ class Balloon:
         """
         if self.alt==0 and value==0: return
         assert value==1 or value==0 or value==-1
-        assert self.altMax >= self.alt+value > 0
+        assert self.altMax >= self.alt+value > 0, f"alt is not good (alt: {self.alt+value})"
         self.alt += value
 
     def applyWind(self) -> None:
