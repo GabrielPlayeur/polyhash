@@ -1,7 +1,5 @@
 from .brainInit import Brain
-from collections import deque, defaultdict
-from heapq import heappush, heapreplace, nsmallest
-from sortedcontainers import SortedList
+from collections import deque
 from .node import Node
 from cellMap import CellMap
 from objects import TargetCell, Cell
@@ -48,7 +46,7 @@ class TreeBrain(Brain):
         stack = deque()
 
         maxLeaf = [root]
-        curStage = SortedList([root])
+        curStage = [root]
         for stage in range(self.graph.turns):
             stageCoveredTarget = self.coveredTarget[stage]
             stack = curStage.copy()
@@ -68,7 +66,7 @@ class TreeBrain(Brain):
                         lenCurStage -= 1
                     if lenCurStage < self.nbOfNodes[stage]:
                         nextNode = Node(cell=cell, alt=alt, parent=node, sum=nextSum)
-                        curStage.add(nextNode)
+                        bisect.insort(curStage, nextNode)
                         lenCurStage += 1
                         if stage == self.graph.turns-1:
                             if nextSum > maxLeaf[0].sum:
