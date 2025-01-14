@@ -1,6 +1,7 @@
 from .brainInit import Brain
 from collections import deque, defaultdict
 from heapq import heappush, heapreplace, nsmallest
+from sortedcontainers import SortedList
 from .node import Node
 from cellMap import CellMap
 from objects import TargetCell, Cell
@@ -32,7 +33,7 @@ class TreeBrain(Brain):
                 Flag to enable or disable debug information. If True, additional debug output will be provided during execution. Defaults to False.
         """
         self.graph: CellMap = graph
-        self.coveredTarget: dict[int, set[TargetCell]] = defaultdict(set)
+        self.coveredTarget: list[set[TargetCell]] = [set() for _ in range(self.graph.turns+1)]
         self.debugInfo: bool = debugInfo
         self.deepness: int = deepness
         self.turns: list[list[int]] = []
@@ -47,9 +48,9 @@ class TreeBrain(Brain):
         stack = deque()
 
         maxLeaf = [root]
-        curStage = [root]
+        curStage = SortedList([root])
         for stage in range(self.graph.turns):
-            stageCoveredTarget = self.coveredTarget.get(stage+1, set())
+            stageCoveredTarget = self.coveredTarget[stage]
             stack = curStage.copy()
             curStage.clear()
             lenCurStage = 0
@@ -67,13 +68,14 @@ class TreeBrain(Brain):
                         lenCurStage -= 1
                     if lenCurStage < self.nbOfNodes[stage]:
                         nextNode = Node(cell=cell, alt=alt, parent=node, sum=nextSum)
-                        bisect.insort(curStage, nextNode)
+                        curStage.add(nextNode)
                         lenCurStage += 1
                         if stage == self.graph.turns-1:
                             if nextSum > maxLeaf[0].sum:
                                 maxLeaf = [nextNode]
                             elif nextSum == maxLeaf[0].sum:
                                 maxLeaf.append(nextNode)
+            # print(f"Stage {stage} completed!")
         nodeChoice = randint(0,len(maxLeaf)-1)
         print(f"{len(maxLeaf)} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}")  if self.debugInfo else None
         return root, maxLeaf[nodeChoice]
@@ -90,22 +92,18 @@ class TreeBrain(Brain):
 
     def _pointForNode(self, cell:Cell, stageCoveredTarget: set[TargetCell]) -> int:
         """Compute the number of point for a node"""
-        points = 0
-        for target in cell.targets:
-            if target not in stageCoveredTarget:
-                points += 1
-        return points
+        return len(cell.targetsSet - stageCoveredTarget)
 
     def bestPath(self, maxLeaf: Node) -> deque[Node]:
         """Return the best path of the tree. Use self.construct() to generate leaves"""
         node = maxLeaf
         path  = deque([node])
-        while node.hasParent():     # type: ignore
+        while node.parent is not None:
             node = node.parent      # type: ignore
             path.appendleft(node)   # type: ignore
         return path
 
-    def setCoveredTarget(self, path: deque[Node]) -> dict[int, set[TargetCell]]:
+    def setCoveredTarget(self, path: deque[Node]) -> list[set[TargetCell]]:
         """Add a path in the explored dict, so the nexts paths will not re-compute the same path, i.e some target are now taken"""
         for n, node in enumerate(path):
             self.coveredTarget[n].update(node.cell.targets)    # type: ignore
