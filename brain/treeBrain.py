@@ -33,28 +33,34 @@ class TreeBrain(Brain):
         self.debugInfo: bool = debugInfo
         self.deepness: int = deepness
         self.turns: list[list[int]] = []
+        self.nbOfNodes = [stage*self.deepness + 1 for stage in range(self.graph.turns)]
 
     def construct(self) -> tuple[Node, Node]:
         """Build a linear/log growth tree exploring all path worth of being explored."""
-        size = 1
-        llen = 0
         stage = 0
-        nbOfNodes = lambda stage: stage*self.deepness + 1
-        # nbOfNodes = lambda stage: math.log(stage if stage > 2 else 2)*self.deepness
+        # nbOfNodes = lambda stage: stage*self.deepness + 1
         print("\nBuilding the tree ...") if self.debugInfo else None
 
-        def pushOrForget(p:list, stage:int, node:Node) -> None:
-            if len(p) < nbOfNodes(stage):
+        def pushOrForget(p: list, lenP:int, stage:int, node:Node) -> int:
+            if lenP < self.nbOfNodes[stage]:
                 heappush(p, node)
-            elif node > p[0]:
+                return 1
+            # elif node > p[0]:
+            #     heapreplace(p, node)
+            elif node.sum > p[0].sum:
                 heapreplace(p, node)
+            return 0
 
-        root: Node = Node(self.graph.startingCell, parent=None, alt=0, presum=0, points=0)
-        stack = deque([root, ])
+        root: Node = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
+        stack = deque()
 
         maxLeaf = root
+        curStage = [root]
         while stage < self.graph.turns:
             stageCoveredTarget = self.coveredTarget.get(stage+1, set())
+            stack = deque(curStage)
+            curStage.clear()
+            lenCurStage = 0
             for _ in range(len(stack)):
                 node = stack.popleft()
                 for alt in self._directions(node):
@@ -62,16 +68,13 @@ class TreeBrain(Brain):
                     if cell is self.graph.outsideCell:
                         continue
                     points = self._pointForNode(cell, stageCoveredTarget) if alt > 0 else 0
-                    nextNode = Node(cell=cell, alt=alt, parent=node, presum=node.sum, points=points)
-                    node.addChild(nextNode)
-                    size += 1
+                    nextNode = Node(cell=cell, alt=alt, parent=node, sum=node.sum+points)
                     if nextNode.sum >= maxLeaf.sum:
                         maxLeaf = nextNode
                     #Adding node
-                    stack.append(nextNode)
-                    # pushOrForget(leafs, stage, nextNode)
+                    # stack.append(nextNode)
+                    lenCurStage += pushOrForget(curStage, lenCurStage, stage, nextNode)
             stage += 1
-        # print(f"%\nTree constructed with {llen} nodes and {size-llen} node aborted") if self.debugInfo else None
         return root, maxLeaf
 
     def _directions(self, node: Node) -> tuple[int] | tuple[int, int] | tuple[int, int,int]:
@@ -102,14 +105,14 @@ class TreeBrain(Brain):
         print(f"%\nBest path with {path[-1].sum} points") if self.debugInfo else ""
         return path
 
-    def setCoveredTarget(self, path:deque[Node]) -> dict[int, set[TargetCell]]:
+    def setCoveredTarget(self, path: deque[Node]) -> dict[int, set[TargetCell]]:
         """Add a path in the explored dict, so the nexts paths will not re-compute the same path, i.e some target are now taken"""
         for n, node in enumerate(path):
             self.coveredTarget[n].update(node.cell.targets)    # type: ignore
         return self.coveredTarget
 
     #Traduction methods
-    def pathToMove(self, path:deque[Node]) -> list[int]:
+    def pathToMove(self, path: deque[Node]) -> list[int]:
         """Translate a list of node a.k.a path to a list of move"""
         moves = []
         prevAlt = path.popleft().alt if len(path) > 0 else 0
