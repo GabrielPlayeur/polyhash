@@ -11,11 +11,13 @@ class Cell:
         self.col: int = col
         self._winds: list[Wind] = winds
         self.targets: list[Cell] = []
+        self.targetsSet: set[Cell] = set()
         self.neighbors: list[Cell] = []
 
     def addTarget(self, target: Cell) -> None:
         """Add target cell into the cell's targets list"""
         self.targets.append(target)
+        self.targetsSet.add(target)
 
     def addNeighbor(self, cell: Cell) -> None:
         "add a neighbor at the n altitude, letting n be lenght of neighbors"
