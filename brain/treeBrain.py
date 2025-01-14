@@ -3,7 +3,6 @@ from collections import deque
 from .node import Node
 from cellMap import CellMap
 from objects import TargetCell, Cell
-import bisect
 from time import time
 from random import randint
 
@@ -43,12 +42,11 @@ class TreeBrain(Brain):
         print("\nBuilding the tree ...") if self.debugInfo else None
 
         root: Node = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
-        stack = deque()
 
         maxLeaf = [root]
         curStage = [root]
         for stage in range(self.graph.turns):
-            stageCoveredTarget = self.coveredTarget[stage]
+            stageCoveredTarget = self.coveredTarget[stage+1]
             stack = curStage.copy()
             curStage.clear()
             lenCurStage = 0
@@ -66,7 +64,8 @@ class TreeBrain(Brain):
                         lenCurStage -= 1
                     if lenCurStage < self.nbOfNodes[stage]:
                         nextNode = Node(cell=cell, alt=alt, parent=node, sum=nextSum)
-                        bisect.insort(curStage, nextNode)
+                        # bisect.insort(curStage, nextNode)
+                        self.insort_right(curStage, nextNode)
                         lenCurStage += 1
                         if stage == self.graph.turns-1:
                             if nextSum > maxLeaf[0].sum:
@@ -140,3 +139,14 @@ class TreeBrain(Brain):
         if len(self.turns) == 0:
             self.solveBestPath()
         return self.turns[balloonIdx][turn]
+
+    def insort_right(self, l: list[Node], n: Node):
+        lo, hi = 0, len(l)
+        s = n.sum
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if s < l[mid].sum:
+                hi = mid
+            else:
+                lo = mid + 1
+        l.insert(lo, n)
