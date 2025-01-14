@@ -1,9 +1,12 @@
 from .brainInit import Brain
 from collections import deque, defaultdict
-from heapq import heappush, heapreplace
+from heapq import heappush, heapreplace, nsmallest
 from .node import Node
 from cellMap import CellMap
 from objects import TargetCell, Cell
+import bisect
+from time import time
+from random import randint
 
 class TreeBrain(Brain):
     def __init__(self, graph: CellMap, deepness: int, debugInfo=False) -> None:
@@ -33,49 +36,47 @@ class TreeBrain(Brain):
         self.debugInfo: bool = debugInfo
         self.deepness: int = deepness
         self.turns: list[list[int]] = []
-        self.nbOfNodes = [stage*self.deepness + 1 for stage in range(self.graph.turns)]
+        self.nbOfNodes = [(stage+1)*self.deepness + 1 for stage in range(self.graph.turns)]
 
     def construct(self) -> tuple[Node, Node]:
         """Build a linear/log growth tree exploring all path worth of being explored."""
         stage = 0
-        # nbOfNodes = lambda stage: stage*self.deepness + 1
         print("\nBuilding the tree ...") if self.debugInfo else None
-
-        def pushOrForget(p: list, lenP:int, stage:int, node:Node) -> int:
-            if lenP < self.nbOfNodes[stage]:
-                heappush(p, node)
-                return 1
-            # elif node > p[0]:
-            #     heapreplace(p, node)
-            elif node.sum > p[0].sum:
-                heapreplace(p, node)
-            return 0
 
         root: Node = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
         stack = deque()
 
-        maxLeaf = root
+        maxLeaf = [root]
         curStage = [root]
-        while stage < self.graph.turns:
+        for stage in range(self.graph.turns):
             stageCoveredTarget = self.coveredTarget.get(stage+1, set())
-            stack = deque(curStage)
+            stack = curStage.copy()
             curStage.clear()
             lenCurStage = 0
             for _ in range(len(stack)):
-                node = stack.popleft()
+                node = stack.pop()
                 for alt in self._directions(node):
                     cell = node.cell.neighbors[alt]
                     if cell is self.graph.outsideCell:
                         continue
                     points = self._pointForNode(cell, stageCoveredTarget) if alt > 0 else 0
-                    nextNode = Node(cell=cell, alt=alt, parent=node, sum=node.sum+points)
-                    if nextNode.sum >= maxLeaf.sum:
-                        maxLeaf = nextNode
-                    #Adding node
-                    # stack.append(nextNode)
-                    lenCurStage += pushOrForget(curStage, lenCurStage, stage, nextNode)
-            stage += 1
-        return root, maxLeaf
+                    nextSum = node.sum+points
+                    nextNode = None
+                    if lenCurStage >= self.nbOfNodes[stage] and nextSum > curStage[-1].sum:
+                        curStage.pop()
+                        lenCurStage -= 1
+                    if lenCurStage < self.nbOfNodes[stage]:
+                        nextNode = Node(cell=cell, alt=alt, parent=node, sum=nextSum)
+                        bisect.insort(curStage, nextNode)
+                        lenCurStage += 1
+                        if stage == self.graph.turns-1:
+                            if nextSum > maxLeaf[0].sum:
+                                maxLeaf = [nextNode]
+                            elif nextSum == maxLeaf[0].sum:
+                                maxLeaf.append(nextNode)
+        nodeChoice = randint(0,len(maxLeaf)-1)
+        print(f"{len(maxLeaf)} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}")  if self.debugInfo else None
+        return root, maxLeaf[nodeChoice]
 
     def _directions(self, node: Node) -> tuple[int] | tuple[int, int] | tuple[int, int,int]:
         """Return all move possible at the altitude of the given node"""
@@ -102,7 +103,6 @@ class TreeBrain(Brain):
         while node.hasParent():     # type: ignore
             node = node.parent      # type: ignore
             path.appendleft(node)   # type: ignore
-        print(f"%\nBest path with {path[-1].sum} points") if self.debugInfo else ""
         return path
 
     def setCoveredTarget(self, path: deque[Node]) -> dict[int, set[TargetCell]]:
@@ -125,15 +125,18 @@ class TreeBrain(Brain):
     def solveBestPath(self) -> None:
         """Construct a tree find the best path add it to explored and repeat n times where n is the number of balloon"""
         nbPoints = 0
-        for _ in range(self.graph.ballons):
+        n = self.graph.ballons
+        gs = time()
+        for _ in range(n):
+            s = time()
             root, maxLeaf = self.construct()
             path = self.bestPath(maxLeaf)
             self.setCoveredTarget(path)
             mv = self.pathToMove(path)
             self.turns.append(mv)
             nbPoints += path[-1].sum
-            print(mv, nbPoints, len(mv))
-        print("_"*50,f"\n\nSome of path: {nbPoints}\n")  if self.debugInfo else None
+            print(f"Best path with {path[-1].sum} points. Total: {nbPoints} pts. Made in {(time()-s):.2f}s. Step: {_+1}/{n}") if self.debugInfo else ""
+        print("_"*50,f"\n\nSome of path: {nbPoints}. Made in {(time()-gs):.2f}s.\n")  if self.debugInfo else None
 
     def solve(self, balloonIdx: int, turn: int) -> int:
         assert self.graph.ballons > balloonIdx >= 0
