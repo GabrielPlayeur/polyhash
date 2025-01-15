@@ -8,7 +8,7 @@ class Balloon:
         """Entity that describe a balloon and it's altitude"""
         self.cell: Cell = startCell
         self.alt: int = 0
-        self.altMax = len(self.cell._winds)-1
+        self.altMax: int = len(self.cell._winds)-1
 
     def moveAlt(self, value: int) -> None:
         """Change the altitude of the balloon
@@ -24,8 +24,8 @@ class Balloon:
     def applyWind(self) -> None:
         """Apply the wind at the current altitude"""
         for target in self.cell.targets:
-            if self in target.coverBy:
-                target.coverBy.remove(self)
+            if self in target.coverBy: # type: ignore
+                target.coverBy.remove(self) # type: ignore
         self.cell = self.cell.getNeighbor(self.alt)
         for target in self.cell.targets:
-            target.coverBy.add(self)
+            target.coverBy.add(self) # type: ignore
