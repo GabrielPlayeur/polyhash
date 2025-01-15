@@ -7,7 +7,7 @@ from time import time
 from random import randint
 
 class TreeBrain(Brain):
-    def __init__(self, graph: CellMap, deepness: int, debugInfo=False) -> None:
+    def __init__(self, graph: CellMap, wideness: int, deepness: int, debugInfo=False) -> None:
         """
         Initialize a Tree instance.
             -> There two majors ways of using this class:
@@ -18,8 +18,8 @@ class TreeBrain(Brain):
             `graph` (CellMap):
                 The graph representation of the environment, which serves as the base for constructing the tree.
 
-            `deepness` (int): 
-                The maximum depth to which the tree will be expanded, i.e the coefficeint of the linear increasement
+            `wideness` (int): 
+                The maximum wide to which the tree will be expanded, i.e the coefficeint of the linear increasement
                 of the number of nodes explored each stage of the tree.
 
             `coveredTarget` (dict[int, set[TargetCell]], optional):
@@ -32,21 +32,17 @@ class TreeBrain(Brain):
         self.graph: CellMap = graph
         self.coveredTarget: list[set[TargetCell]] = [set() for _ in range(self.graph.turns+1)]
         self.debugInfo: bool = debugInfo
-        self.deepness: int = deepness
+        self.wideness: int = wideness
+        self.defaultDepth: int = deepness      #the depth of the tree construction: higher value improve performance but reduce result output
         self.turns: list[list[int]] = []
-        self.nbOfNodes = [(stage+1)*self.deepness + 1 for stage in range(self.graph.turns)]
+        self.nbOfNodes = [(stage+1)*self.wideness + 1 for stage in range(self.graph.turns)]
 
-    def construct(self) -> tuple[Node, Node]:
+    def construct(self, root: Node, depthS: int, addDepth: int, debug: bool=False) -> tuple[Node, Node]:
         """Build a linear/log growth tree exploring all path worth of being explored."""
-        stage = 0
-        print("\nBuilding the tree ...") if self.debugInfo else None
-
-        root: Node = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
-
-        maxLeaf = [root]
+        maxLeaf = []
         curStage = [root]
-        for stage in range(self.graph.turns):
-            stageCoveredTarget = self.coveredTarget[stage+1]
+        for localStage in range(addDepth):
+            stageCoveredTarget = self.coveredTarget[localStage+depthS+1]
             stack = curStage.copy()
             curStage.clear()
             lenCurStage = 0
@@ -59,24 +55,26 @@ class TreeBrain(Brain):
                     points = self._pointForNode(cell, stageCoveredTarget) if alt > 0 else 0
                     nextSum = node.sum+points
                     nextNode = None
-                    if lenCurStage >= self.nbOfNodes[stage] and nextSum > curStage[-1].sum:
+                    if lenCurStage >= self.nbOfNodes[localStage] and nextSum > curStage[-1].sum:
                         curStage.pop()
                         lenCurStage -= 1
-                    if lenCurStage < self.nbOfNodes[stage]:
+                    if lenCurStage < self.nbOfNodes[localStage]:
                         nextNode = Node(cell=cell, alt=alt, parent=node, sum=nextSum)
-                        # bisect.insort(curStage, nextNode)
                         self.insort_right(curStage, nextNode)
                         lenCurStage += 1
-                        if stage == self.graph.turns-1:
-                            if nextSum > maxLeaf[0].sum:
+                        if localStage == addDepth-1:
+                            if len(maxLeaf)==0 or nextSum > maxLeaf[0].sum:
                                 maxLeaf = [nextNode]
                             elif nextSum == maxLeaf[0].sum:
                                 maxLeaf.append(nextNode)
-            # print(f"Stage {stage} completed!")
+            # print(f"Stage {localStage} completed!")
         nodeChoice = randint(0,len(maxLeaf)-1)
-        print(f"{len(maxLeaf)} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}")  if self.debugInfo else None
+        print(f"{len(maxLeaf)} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}") if debug else None
+        if len(maxLeaf)==0:
+            raise ValueError('The path choosen cannot be completed!')
         return root, maxLeaf[nodeChoice]
 
+    #TODO: change the condition to make it clear
     def _directions(self, node: Node) -> tuple[int] | tuple[int, int] | tuple[int, int,int]:
         """Return all move possible at the altitude of the given node"""
         if self.graph.altitudes > node.alt >= 0 and node.alt > 1:
@@ -112,25 +110,46 @@ class TreeBrain(Brain):
         moves = []
         prevAlt = path.popleft().alt if len(path) > 0 else 0
         for node in path:
-                dAlt = node.alt - prevAlt
-                moves.append(dAlt)
-                prevAlt = node.alt
+            dAlt = node.alt - prevAlt
+            moves.append(dAlt)
+            prevAlt = node.alt
         return moves
+
+    def splitDepths(self) -> list[int]:
+        depths = []
+        for _ in range(self.graph.turns//self.defaultDepth):
+            depths.append(self.defaultDepth)
+        if rest:=self.graph.turns%self.defaultDepth:
+            depths.append(rest)
+        return depths
+
+    def solveByStep(self) -> deque[Node]:
+        """the method to split the tree's construction and the bestPath finding"""
+        root = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
+        depths = self.splitDepths()
+        print("\nBuilding the splitted tree ...") if self.debugInfo else None
+        curDepth = 0
+        for n, addDepth in enumerate(depths):
+            s = time()
+            _, maxLeaf = self.construct(root, curDepth, addDepth, len(depths)==1)
+            curDepth += addDepth
+            root = maxLeaf
+            print(f"\t-Split {n+1}/{len(depths)} in {(time()-s):.2f}s") if self.debugInfo and len(depths) > 1 else None
+        return self.bestPath(maxLeaf)
 
     def solveBestPath(self) -> None:
         """Construct a tree find the best path add it to explored and repeat n times where n is the number of balloon"""
         nbPoints = 0
         n = self.graph.ballons
         gs = time()
-        for _ in range(n):
+        for cur in range(n):
             s = time()
-            root, maxLeaf = self.construct()
-            path = self.bestPath(maxLeaf)
+            path = self.solveByStep()
             self.setCoveredTarget(path)
             mv = self.pathToMove(path)
             self.turns.append(mv)
             nbPoints += path[-1].sum
-            print(f"Best path with {path[-1].sum} points. Total: {nbPoints} pts. Made in {(time()-s):.2f}s. Step: {_+1}/{n}") if self.debugInfo else ""
+            print(f"Best path with {path[-1].sum} points. Total: {nbPoints} pts. Made in {(time()-s):.2f}s. Step: {cur+1}/{n}") if self.debugInfo else ""
         print("_"*50,f"\n\nSome of path: {nbPoints}. Made in {(time()-gs):.2f}s.\n")  if self.debugInfo else None
 
     def solve(self, balloonIdx: int, turn: int) -> int:
@@ -141,6 +160,7 @@ class TreeBrain(Brain):
         return self.turns[balloonIdx][turn]
 
     def insort_right(self, l: list[Node], n: Node):
+        """With our profiling, it turns out that insertion in a list is better than maintaining a minheap ;)"""
         lo, hi = 0, len(l)
         s = n.sum
         while lo < hi:

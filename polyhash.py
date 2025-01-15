@@ -43,4 +43,4 @@ if __name__ == "__main__":
     main()
     profiler.disable()
     stats = pstats.Stats(profiler).sort_stats('tottime')
-    stats.print_stats()
+    # stats.print_stats()
