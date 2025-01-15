@@ -30,6 +30,7 @@ class TestPolysolver:
         sol = """1 0 1 1\n0 0 0 0\n1 1 0 1\n-1 -1 0 -1\n0 0 0 0"""
         assert stringifySolution(res, nbT) == sol
 
+    #TODO: fix with new rules
     def test_getScoreSolution(self):
         self.verifyIfFileExist()
         challenge = parseChallenge(f"./challenges/a_example.in")

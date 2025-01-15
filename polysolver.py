@@ -10,9 +10,9 @@ def solve(challenge: ParserData) -> str: #TODO: add test
     """Solve a given challenge while checking the consistency of the result
     """
     cellMap = CellMap(challenge)
-    brain = RandomBrain()
-    brain = ClosestBrain(challenge.turns)
-    brain = VerifyBrain("b_small.txt")
+    # brain = RandomBrain()
+    # brain = ClosestBrain(challenge.turns)
+    # brain = VerifyBrain("b_small.txt")
     brain = TreeBrain(cellMap, wideness=500, deepness=50, debugInfo=True)
     simulation = Simulation(challenge, brain, cellMap)
     for n, _ in enumerate(simulation.runIter()):
@@ -22,8 +22,7 @@ def solve(challenge: ParserData) -> str: #TODO: add test
     print(f"The simulation reached {result.nbPoints} points.")
     return stringifySolution(result, simulation.ROUNDS)
 
-
-def stringifySolution(result:ResultData, nbTurn:int) -> str:
+def stringifySolution(result: ResultData, nbTurn: int) -> str:
     """Transform results in a conform textual ouput"""
     solution = ""
     for turn in range(nbTurn):

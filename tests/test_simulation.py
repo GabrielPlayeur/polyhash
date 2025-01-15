@@ -4,6 +4,7 @@ from polyparser import parseChallenge
 from brain import VerifyBrain
 from cellMap import CellMap
 
+#TODO: fix with new rules
 class TestSimulation:
     NAME_FILE = "tests/data/test_data_verifyBrain.txt"
     def verifyIfFileExist(self):
