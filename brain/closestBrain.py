@@ -1,18 +1,17 @@
 from .brainInit import *
 from collections import defaultdict, deque
 from functools import cache
-from math import inf
 
 #TODO: add doc
 class ClosestBrain(Brain):
-    def __init__(self, maxTurn) -> None:
+    def __init__(self, maxTurn: int) -> None:
         self.maxTurn = maxTurn
         self.covered: dict[tuple[int,int], int] = dict()
-        self.graph = defaultdict(set)
+        self.graph: dict[tuple[int,int,int], set] = defaultdict(set)
         self.balloonMove: dict[Balloon, dict] = {}
         self.addOutsideCell()
 
-    def solve(self, balloon: Balloon, map: list[list[Cell]]):
+    def solve(self, balloon: Balloon, map: list[list[Cell]]) -> int:
         savePath = self.balloonMove.get(balloon)
         if savePath is not None and savePath['idx']<len(savePath['moves']):
             move = savePath['moves'][savePath['idx']]
@@ -26,10 +25,10 @@ class ClosestBrain(Brain):
         savePath = self.balloonMove[balloon]
         return moves[0]
 
-    def dijkstra(self, start: Cell, alt: int):
+    def dijkstra(self, start: Cell, alt: int) -> tuple[tuple[int,int], list[int]]:
         self.givePoint.cache_clear()
-        dist = defaultdict(lambda : (inf,[]))
-        minKey,minTurn = (-1,-1), inf
+        dist = defaultdict(lambda : (float('inf'),[]))
+        minKey,minTurn = (-1,-1), float('inf')
         visited: set[tuple[int,int,int]] = set()
         nextCells = deque([(start, alt, 0, [])])
         cur, curAlt = start, alt

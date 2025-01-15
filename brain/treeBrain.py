@@ -6,6 +6,7 @@ from objects import TargetCell, Cell
 from time import time
 from random import randint
 
+#TODO: add doc
 class TreeBrain(Brain):
     def __init__(self, graph: CellMap, wideness: int, deepness: int, debugInfo: bool=False) -> None:
         """

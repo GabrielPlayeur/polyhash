@@ -9,7 +9,7 @@ class VerifyBrain(Brain):
         self.splitLines: dict[int, list[str]] = {}
         self._load()
 
-    def _load(self):
+    def _load(self) -> None:
         assert os.path.exists(self.file)==True, f"Given file didn't exist: {self.file}"
         with open(self.file, "r") as f:
             self.lines = f.readlines()
