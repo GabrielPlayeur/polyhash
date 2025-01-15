@@ -33,7 +33,7 @@ def main():
 
     if args.output is not None:
         # Sauvegarder le fichier généré
-        saveSolution(args.output, solution)    
+        saveSolution(args.output, solution)
 
     #print(f"Score: {getScoreSolution(solution)}")
 

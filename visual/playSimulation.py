@@ -27,7 +27,8 @@ class Visual:
                           "green": (0,0.5019607843137255,0.0)}
         challenge = parseChallenge(f"./challenges/{name}.in")
         cellMap = CellMap(challenge)
-        brain = TreeBrain(cellMap, 500, True)
+        brain = TreeBrain(cellMap, 500, 1, False)
+        # brain = VerifyBrain("out_500_25.txt")
         self.sim = Simulation(challenge, brain, cellMap)
         self.saved = False
 
@@ -151,9 +152,9 @@ class Visual:
             plt.close(self.fig)
 
 if __name__ == '__main__':
-    name = "d_final"
     name = "a_example"
     name = "c_medium"
     name = "b_small"
+    name = "d_final"
     v = Visual(name)
     v.create()
