@@ -96,11 +96,15 @@ class Visual:
             return
         element.set_color(color)
 
-    def update(self):
+    def update(self, nextTurn:bool = True):
         # Enregistrer les positions actuelles des ballons
         lastP = self.sim.resultData.nbPoints
         # Avancer la simulation
-        self.sim.nextTurn()
+
+        if nextTurn:
+            self.sim.nextTurn()
+        else:
+            self.sim.prevTurn()
 
         lstTar = set()
         for tarVec in self.targets:
@@ -141,8 +145,10 @@ class Visual:
                 print(self.sim.resultData.nbPoints)
                 saveSolution(name+".txt", stringifySolution(self.sim.resultData,self.sim.ROUNDS))
                 self.saved = True
-        elif event.key == ' ':  # Appuyer sur espace pour avancer d'un tour
-            self.update()
+        elif event.key == ' ' or event.key == 'z':  # Appuyer sur espace pour avancer d'un tour
+            self.update(nextTurn=True)
+        elif event.key == 'r':  # Appuyer sur espace reculer d'un tour
+            self.update(nextTurn=False)
         if event.key.lower() == 'q':  # Appuyer sur Q pour quitter
             plt.close(self.fig)
 
