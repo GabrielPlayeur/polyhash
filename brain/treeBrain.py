@@ -40,54 +40,58 @@ class TreeBrain(Brain):
 
     def construct(self, root: Node, depthS: int, addDepth: int, debug: bool=False) -> Node:
         """Build a linear/log growth tree exploring all path worth of being explored."""
-        maxLeaf = []
-        curStage = [root]
+        maxLeaf: list[Node] = []
+        lenMaxLeaf: int = 0 
+        curStage: list[Node] = [root]
         for localStage in range(addDepth):
-            stageCoveredTarget = self.coveredTarget[localStage+depthS+1]
-            stack = curStage.copy()
+            stageCoveredTarget: set[TargetCell] = self.coveredTarget[localStage+depthS+1]
+            stack: list[Node] = curStage.copy()
             curStage.clear()
-            lenCurStage = 0
+            lenCurStage: int = 0
             for _ in range(len(stack)):
-                node = stack.pop()
+                node: Node = stack.pop()
                 for alt in self._directions(node):
-                    cell = node.cell.neighbors[alt]
+                    cell: Cell = node.cell.neighbors[alt]
                     if cell is self.graph.outsideCell:
                         continue
-                    points = self._pointForNode(cell, stageCoveredTarget) if alt > 0 else 0
-                    nextSum = node.sum+points
-                    nextNode = None
+                    nextSum: int = node.sum + self._pointForNode(alt, cell, stageCoveredTarget)
+                    nextNode: Node|None = None
                     if lenCurStage >= self.nbOfNodes[localStage] and nextSum > curStage[-1].sum:
                         curStage.pop()
                         lenCurStage -= 1
                     if lenCurStage < self.nbOfNodes[localStage]:
                         nextNode = Node(cell=cell, alt=alt, parent=node, sum=nextSum)
-                        self.insort_right(curStage, nextNode)
+                        self.insort_right(curStage, nextNode, 0, lenCurStage)
                         lenCurStage += 1
                         if localStage == addDepth-1:
-                            if len(maxLeaf)==0 or nextSum > maxLeaf[0].sum:
+                            if lenMaxLeaf == 0 or nextSum > maxLeaf[0].sum:
                                 maxLeaf = [nextNode]
+                                lenMaxLeaf = 1
                             elif nextSum == maxLeaf[0].sum:
                                 maxLeaf.append(nextNode)
+                                lenMaxLeaf += 1
             # print(f"Stage {localStage} completed!")
-        if len(maxLeaf)==0:
+        if lenMaxLeaf == 0:
             return Node(self.graph.outsideCell, root.alt, root, root.sum)
-        nodeChoice = randint(0,len(maxLeaf)-1)
-        print(f"{len(maxLeaf)} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}") if debug else None
+        nodeChoice = randint(0,lenMaxLeaf-1)
+        print(f"{lenMaxLeaf} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}") if debug else None
         return maxLeaf[nodeChoice]
 
     #TODO: change the condition to make it clear
     def _directions(self, node: Node) -> tuple[int] | tuple[int, int] | tuple[int, int,int]:
         """Return all move possible at the altitude of the given node"""
-        if self.graph.altitudes > node.alt >= 0 and node.alt > 1:
+        if self.graph.altitudes > node.alt > 1:
             return (node.alt, node.alt+1, node.alt-1)
-        if self.graph.altitudes > node.alt >= 0:
+        if node.alt <= 1:
             return (node.alt, node.alt+1)
-        if node.alt > 1:
+        if node.alt == self.graph.altitudes:
             return (node.alt, node.alt-1)
-        return (node.alt,)
+        raise ValueError('Cannot move with the given Node')
 
-    def _pointForNode(self, cell: Cell, stageCoveredTarget: set[TargetCell]) -> int:
+    def _pointForNode(self, alt: int, cell: Cell, stageCoveredTarget: set[TargetCell]) -> int:
         """Compute the number of point for a node"""
+        if alt == 0:
+            return 0
         return len(cell.targetsSet - stageCoveredTarget)
 
     def bestPath(self, maxLeaf: Node) -> deque[Node]:
@@ -105,7 +109,6 @@ class TreeBrain(Brain):
             self.coveredTarget[n].update(node.cell.targets)    # type: ignore
         return self.coveredTarget
 
-    #Traduction methods
     def pathToMove(self, path: deque[Node]) -> list[int]:
         """Translate a list of node a.k.a path to a list of move"""
         moves = []
@@ -167,9 +170,8 @@ class TreeBrain(Brain):
             self.solveBestPath()
         return self.turns[balloonIdx][turn]
 
-    def insort_right(self, l: list[Node], n: Node) -> None:
+    def insort_right(self, l: list[Node], n: Node, lo, hi) -> None:
         """With our profiling, it turns out that insertion in a list is better than maintaining a minheap when the list is small ;)"""
-        lo, hi = 0, len(l)
         s = n.sum
         while lo < hi:
             mid = (lo + hi) // 2
