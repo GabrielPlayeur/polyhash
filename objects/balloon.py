@@ -7,7 +7,7 @@ class Balloon:
     def __init__(self, startCell: Cell) -> None:
         """Entity that describe a balloon and it's altitude"""
         self.cell: Cell = startCell
-        self.cellHistory: list[tuple[(Cell,int)]] = [] #Cell -> previous Cell, int -> previous altitude
+        self.cellHistory: list[tuple[(Cell,int)]] = [(startCell, 0)] #Cell -> previous Cell, int -> previous altitude
         self.alt: int = 0
         self.altMax = len(self.cell._winds)-1
 
@@ -31,23 +31,9 @@ class Balloon:
 
         for target in self.cell.targets:
             target.coverBy.add(self)
-
-
-
-    def appendHistory(self, numberTurn, newAlt):
-        assert numberTurn <= len(self.cellHistory)
-        if numberTurn < len(self.cellHistory): 
-            '''
-            In case we're in the past we overwrite the future state since
-            apart from the random strategy every strategy is determinist
-            '''
-            self.cellHistory = self.cellHistory[:numberTurn]
-        self.cellHistory.append((self.cell,newAlt))
-
+        self.cellHistory.append((self.cell,self.alt))
     
     def undo(self, numberTurn):
         self.cell = self.cellHistory[numberTurn][0]
         self.alt = self.cellHistory[numberTurn][1]
-
-
-
+        self.cellHistory = self.cellHistory[:numberTurn+1]

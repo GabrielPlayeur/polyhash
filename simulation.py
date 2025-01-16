@@ -31,7 +31,7 @@ class Simulation:
         self.map: CellMap = CellMap(parserData)
         self.balloons: list[Balloon] = [Balloon(self.map.startingCell) for _ in range(self.NB_BALLOONS)]
         self.brain: Brain = brain
-        self.pointHistory = []
+        self.pointHistory = [0]
 
         #Result
         self.resultData: ResultData = ResultData(0, [ [] for _ in range(self.NB_BALLOONS)])
@@ -51,10 +51,6 @@ class Simulation:
             if balloon.cell is self.map.outsideCell:
                 continue
             
-            #Add state to history
-
-            balloon.appendHistory(self.current_round, balloon.alt)
-
             #Moving balloon
             altMoving = self.brain.solve(n, self.current_round) if isinstance(self.brain, VerifyBrain) else self.brain.solve(balloon)
             balloon.moveAlt(altMoving)
@@ -81,8 +77,8 @@ class Simulation:
 
 
     def prevTurn(self) -> None:
+        self.current_round -= 1
         for n, balloon in enumerate(self.balloons):
-            self.current_round -= 1
             
             #Reverse apply wind and altitude
             balloon.undo(self.current_round)
