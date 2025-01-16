@@ -1,6 +1,7 @@
 import sys
 import os
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +10,8 @@ from simulation import Simulation
 from polyparser import parseChallenge
 from polysolver import stringifySolution, saveSolution
 from objects import TargetCell
-from brain import RandomBrain
+from brain import *
+from cellMap import CellMap
 
 class Visual:
     def __init__(self, name):
@@ -23,8 +25,11 @@ class Visual:
         self.colorConv = {"red": (1.0,0.0, 0.0),
                           "blue": (0,0.0, 1.0),
                           "green": (0,0.5019607843137255,0.0)}
-
-        self.sim = Simulation(parseChallenge(f"./challenges/{name}.in"), RandomBrain())
+        challenge = parseChallenge(f"./challenges/{name}.in")
+        cellMap = CellMap(challenge)
+        brain = TreeBrain(cellMap, 500, 1, False)
+        # brain = VerifyBrain("out_500_25.txt")
+        self.sim = Simulation(challenge, brain, cellMap)
         self.saved = False
 
     def create(self):
@@ -182,9 +187,9 @@ class Visual:
             plt.close(self.fig)
 
 if __name__ == '__main__':
-    name = "d_final"
     name = "a_example"
-    name = "b_small"
     name = "c_medium"
+    name = "b_small"
+    name = "d_final"
     v = Visual(name)
     v.create()

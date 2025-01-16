@@ -9,7 +9,7 @@ class Balloon:
         self.cell: Cell = startCell
         self.cellHistory: list[tuple[(Cell,int)]] = [(startCell, 0)] #Cell -> previous Cell, int -> previous altitude
         self.alt: int = 0
-        self.altMax = len(self.cell._winds)-1
+        self.altMax: int = len(self.cell._winds)-1
 
     def moveAlt(self, value: int) -> None:
         """Change the altitude of the balloon
@@ -19,18 +19,17 @@ class Balloon:
         """
         if self.alt==0 and value==0: return
         assert value==1 or value==0 or value==-1
-        assert self.altMax >= self.alt+value > 0
+        assert self.altMax >= self.alt+value > 0, f"alt is not good (alt: {self.alt+value})"
         self.alt += value
 
     def applyWind(self) -> None:
         """Apply the wind at the current altitude"""
         for target in self.cell.targets:
-            if self in target.coverBy:
-                target.coverBy.remove(self)
+            if self in target.coverBy: # type: ignore
+                target.coverBy.remove(self) # type: ignore
         self.cell = self.cell.getNeighbor(self.alt)
-
         for target in self.cell.targets:
-            target.coverBy.add(self)
+            target.coverBy.add(self) # type: ignore
         self.cellHistory.append((self.cell,self.alt))
     
     def undo(self, numberTurn):
