@@ -77,7 +77,6 @@ class TreeBrain(Brain):
         print(f"{lenMaxLeaf} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}") if debug else None
         return maxLeaf[nodeChoice]
 
-    #TODO: change the condition to make it clear
     def _directions(self, node: Node) -> tuple[int] | tuple[int, int] | tuple[int, int,int]:
         """Return all move possible at the altitude of the given node"""
         if self.graph.altitudes > node.alt > 1:
@@ -151,7 +150,7 @@ class TreeBrain(Brain):
     def solveBestPath(self) -> None:
         """Construct a tree find the best path add it to explored and repeat n times where n is the number of balloon"""
         nbPoints = 0
-        n = self.graph.ballons
+        n = self.graph.balloons
         gs = time()
         for cur in range(n):
             s = time()
@@ -164,7 +163,7 @@ class TreeBrain(Brain):
         print("_"*50,f"\n\nSome of path: {nbPoints}. Made in {(time()-gs):.2f}s.\n")  if self.debugInfo else None
 
     def solve(self, balloonIdx: int, turn: int) -> int:
-        assert self.graph.ballons > balloonIdx >= 0
+        assert self.graph.balloons > balloonIdx >= 0
         assert self.graph.turns > turn >= 0
         if len(self.turns) == 0:
             self.solveBestPath()

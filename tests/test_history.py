@@ -5,6 +5,7 @@ from polyparser import parseChallenge
 from simulation import Simulation
 from brain.verifyBrain import VerifyBrain
 
+#TODO: fix with new rules
 class TestHistory:
         
         NUM_TEST = 100
