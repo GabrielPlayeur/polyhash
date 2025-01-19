@@ -1,5 +1,6 @@
 from .brainInit import Brain
 from collections import deque
+from heapq import heappush, heapreplace
 from .node import Node
 from cellMap import CellMap
 from objects import TargetCell, Cell
@@ -77,6 +78,45 @@ class TreeBrain(Brain):
         print(f"{lenMaxLeaf} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}") if debug else None
         return maxLeaf[nodeChoice]
 
+    def constructWithHeap(self, root: Node, depthS: int, addDepth: int, debug: bool=False) -> Node:
+        """Build a linear/log growth tree exploring all path worth of being explored."""
+        maxLeaf: list[Node] = []
+        lenMaxLeaf: int = 0 
+        curStage: list[Node] = [root]
+        for localStage in range(addDepth):
+            stageCoveredTarget: set[TargetCell] = self.coveredTarget[localStage+depthS+1]
+            stack: list[Node] = curStage.copy()
+            curStage.clear()
+            lenCurStage: int = 0
+            for _ in range(len(stack)):
+                node: Node = stack.pop()
+                for alt in self._directions(node):
+                    cell: Cell = node.cell.neighbors[alt]
+                    if cell is self.graph.outsideCell:
+                        continue
+                    nextSum: int = node.sum + self._pointForNode(alt, cell, stageCoveredTarget)
+                    nextNode: Node|None = None
+                    if lenCurStage < self.nbOfNodes[localStage]:
+                        nextNode = Node(cell=cell, alt=alt, parent=node, sum=nextSum)
+                        heappush(curStage, nextNode)
+                        lenCurStage += 1
+                    elif node.sum > curStage[0].sum:
+                        nextNode = Node(cell=cell, alt=alt, parent=node, sum=nextSum)
+                        heapreplace(curStage, nextNode)
+                    if localStage == addDepth-1 and nextNode is not None:
+                        if lenMaxLeaf == 0 or nextSum > maxLeaf[0].sum:
+                            maxLeaf = [nextNode]
+                            lenMaxLeaf = 1
+                        elif nextSum == maxLeaf[0].sum:
+                            maxLeaf.append(nextNode)
+                            lenMaxLeaf += 1
+            # print(f"Stage {localStage} completed!")
+        if lenMaxLeaf == 0:
+            return Node(self.graph.outsideCell, root.alt, root, root.sum)
+        nodeChoice = randint(0,lenMaxLeaf-1)
+        print(f"{lenMaxLeaf} node with the value: {maxLeaf[0].sum}. We choose the number: {nodeChoice}") if debug else None
+        return maxLeaf[nodeChoice]
+
     #TODO: change the condition to make it clear
     def _directions(self, node: Node) -> tuple[int] | tuple[int, int] | tuple[int, int,int]:
         """Return all move possible at the altitude of the given node"""
@@ -136,11 +176,12 @@ class TreeBrain(Brain):
         """the method to split the tree's construction and the bestPath finding"""
         root = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
         depths = self.splitDepths()
-        print("\nBuilding the splitted tree ...") if self.debugInfo else None
+        print("\nBuilding the splitted tree ...")
+        constructeur = self.construct if self.defaultDepth*self.wideness < 40_000 else self.constructWithHeap
         curDepth = 0
         for n, addDepth in enumerate(depths):
             s = time()
-            maxLeaf = self.construct(root, curDepth, addDepth, len(depths)==1)
+            maxLeaf = constructeur(root, curDepth, addDepth, len(depths)==1)
             if maxLeaf.cell is self.graph.outsideCell:
                 return self.bestPath(maxLeaf)
             curDepth += addDepth
