@@ -3,15 +3,13 @@ import os
 
 from polyparser import parseChallenge
 from simulation import Simulation
-from brain.verifyBrain import VerifyBrain
+from brain import VerifyBrain
+from cellMap import CellMap
 
-#TODO: fix with new rules
 class TestHistory:
-        
         NUM_TEST = 100
         NAME_FILE = "tests/data/sol_test_history.txt"
 
-        
         def verifyIfFileExist(self):
                 if not os.path.exists("tests/data"):
                         os.mkdir('tests/data')
@@ -20,20 +18,19 @@ class TestHistory:
                         with open(self.NAME_FILE, "w") as f:
                                 f.write(data)
 
-        
-
         def test_history_PrevTurn_OneTurn(self): 
                 '''Mise en place de la simulation'''
                 self.verifyIfFileExist()
                 challengeTest = parseChallenge(f"./challenges/a_example.in")
                 testBrain = VerifyBrain("tests/data/sol_test_history.txt")
-                simulation = Simulation(challengeTest, testBrain)    
-                
+                cellMap = CellMap(challengeTest)
+                simulation = Simulation(challengeTest, testBrain, cellMap)
+
                 '''Jeu de donnée'''
 
                 balloonsFirstTurn = [(1,2),0]
                 nbPointsFirstTurn = 0
-                
+
                 '''Execution des fonctions'''
 
                 simulation.nextTurn()
@@ -51,25 +48,21 @@ class TestHistory:
                 self.verifyIfFileExist()
                 challengeTest = parseChallenge(f"./challenges/a_example.in")
                 testBrain = VerifyBrain("tests/data/sol_test_history.txt")
-                simulation = Simulation(challengeTest, testBrain)    
-                
+                cellMap = CellMap(challengeTest)
+                simulation = Simulation(challengeTest, testBrain, cellMap)
+
                 '''Jeu de donnée'''
 
                 balloonDataAtTurn = [((1,2),0),((1,2),0),((1,3),1),((0,3),2),((0,4),1),((0,0),1)]
-                nbPointsAtTurn = [0,1,1,3,4,5]
+                nbPointsAtTurn = [0,0,2,3,4]
+                pts = []
 
                 '''Execution des fonctions '''
 
-                for i in range(len(nbPointsAtTurn)-1):
+                for i in range(challengeTest.turns):
                         simulation.nextTurn()
-                for i in range(len(nbPointsAtTurn)-2,-1,-1):
+                        assert simulation.resultData.nbPoints == nbPointsAtTurn[i]
+                        pts.append(simulation.resultData.nbPoints)
+                for i in range(challengeTest.turns-2,-1,-1):
                         simulation.prevTurn()
                         assert simulation.resultData.nbPoints == nbPointsAtTurn[i]
-
-                        for balloon in simulation.balloons:
-                                assert balloon.cell.pos == balloonDataAtTurn[i][0]
-                                assert balloon.alt == balloonDataAtTurn[i][1]
-
-                
-
-

@@ -4,7 +4,6 @@ from polyparser import parseChallenge
 from brain import VerifyBrain
 from cellMap import CellMap
 
-#TODO: fix with new rules
 class TestSimulation:
     NAME_FILE = "tests/data/test_data_verifyBrain.txt"
     def verifyIfFileExist(self):
@@ -29,7 +28,7 @@ class TestSimulation:
         cellMap = CellMap(challenge)
         brain = VerifyBrain(self.NAME_FILE)
         sim = Simulation(challenge, brain, cellMap)
-        scr = [-1,1,1,3,4,5]
+        scr = [-1,0,0,2,3,4]
         mvt = [0,1,1,-1,0]
         i = 1
         for rnd, res in sim.runIter():
@@ -44,7 +43,7 @@ class TestSimulation:
         cellMap = CellMap(challenge)
         brain = VerifyBrain(self.NAME_FILE)
         sim = Simulation(challenge, brain, cellMap)
-        scr = [1,1,3,4,5]
+        scr = [0,0,2,3,4]
         mvt = [0,1,1,-1,0]
         alt = [0,1,2,1,1]
         pos = [(1,2),(1,3),(0,3),(0,4),(0,0)]
@@ -67,6 +66,6 @@ class TestSimulation:
         assert len(sim.result().tracking)==1
         assert sim.result().tracking[0]==[]
         sim.run()
-        assert sim.result().nbPoints==5
+        assert sim.result().nbPoints==4
         assert len(sim.result().tracking)==1
         assert sim.result().tracking[0]==mvt

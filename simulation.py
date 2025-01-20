@@ -81,21 +81,18 @@ class Simulation:
             for target in balloon.cell.targets:
                 coveredCells.add(target)
         #Add point to point history
-        self.pointHistory.append(self.resultData.nbPoints)
         self.resultData.nbPoints += len(coveredCells)
+        self.pointHistory.append(self.resultData.nbPoints)
         self.current_round += 1
 
 
     def prevTurn(self) -> None:
         self.current_round -= 1
         for n, balloon in enumerate(self.balloons):
-            
             #Reverse apply wind and altitude
             balloon.undo(self.current_round)
-
             #Reverse the adding of points
             self.resultData.nbPoints = self.pointHistory[self.current_round]
-
 
     def result(self) -> ResultData:
         return self.resultData
