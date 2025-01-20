@@ -6,7 +6,7 @@ from polyparser import ParserData
 from simulation import ResultData, Simulation
 from cellMap import CellMap
 
-def solve(challenge: ParserData) -> str: #TODO: add test
+def solve(challenge: ParserData) -> str:
     """Solve a given challenge while checking the consistency of the result
     """
     cellMap = CellMap(challenge)

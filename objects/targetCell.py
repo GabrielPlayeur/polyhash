@@ -1,4 +1,8 @@
-"""Module.
+"""
+Module for simulating the behavior of a TargetCell object within a grid, which extends a Cell.
+
+This module defines a TargetCell class, which represents a specific type of cell within a grid that can be covered by balloons.
+Each TargetCell can hold balloons, track points, and check if it is currently covered by any balloon.
 """
 from __future__ import annotations
 from .cell import Cell

@@ -1,5 +1,8 @@
+"""
+Module for simulating the behavior of a Wind object.
 
-"""Module.
+This module defines a Wind class that represents the wind's direction and magnitude in a 2D grid.
+The wind is described by a vector with row and column changes, which indicates its direction and strength.
 """
 
 class Wind:

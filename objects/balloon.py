@@ -1,5 +1,8 @@
+"""
+Module for simulating the behavior of a Balloon object within a cellular grid environment.
 
-"""Module.
+This module defines a Balloon class that represents a balloon's movement and interaction with winds at different altitudes.
+The Balloon can change its altitude, apply wind effects, and undo movements, tracking its history across various cells.
 """
 from objects import Cell
 
@@ -31,7 +34,7 @@ class Balloon:
         for target in self.cell.targets:
             target.coverBy.add(self) # type: ignore
         self.cellHistory.append((self.cell,self.alt))
-    
+
     def undo(self, numberTurn):
         self.cell = self.cellHistory[numberTurn][0]
         self.alt = self.cellHistory[numberTurn][1]

@@ -1,4 +1,9 @@
-"""Module.
+"""
+Module for simulating the behavior of a Cell object within a grid, with wind conditions and neighboring cells.
+
+This module defines a Cell class that represents a cell within a grid. Each cell holds information about its position,
+winds at various altitudes, neighboring cells, and target cells that may be in range. The Cell class also supports 
+adding targets and neighbors, retrieving winds by altitude, and navigating between neighboring cells.
 """
 from __future__ import annotations
 from .wind import Wind
