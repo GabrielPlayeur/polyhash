@@ -7,29 +7,23 @@ from objects import TargetCell, Cell
 from time import time
 from random import randint
 
-#TODO: add doc
 class TreeBrain(Brain):
+    """A concrete implementation of the Brain class using a tree-based pathfinding approach.
+
+    This class constructs a decision tree to explore possible movements of a balloon
+    and determine the optimal path based on a given environment (graph).
+    """
+
     def __init__(self, graph: CellMap, wideness: int, deepness: int, debugInfo: bool=False) -> None:
         """
         Initialize a Tree instance.
-            -> There two majors ways of using this class:
-            - by creating unique Tree and refreshing itself every iteration (very bugged but optimized)
-            - by creating a new Tree every iteration and passing it the new coveredTarget argument with a context manager to limit the memory impact (not opti but sure)
 
         Args:
-            `graph` (CellMap):
-                The graph representation of the environment, which serves as the base for constructing the tree.
-
-            `wideness` (int): 
+            wideness (int):
                 The maximum wide to which the tree will be expanded, i.e the coefficeint of the linear increasement
                 of the number of nodes explored each stage of the tree.
-
-            `coveredTarget` (dict[int, set[TargetCell]], optional):
-                A dictionary mapping balloon indices to sets of target cells that have already been covered.
-                Defaults to an empty dictionary.
-
-            `debugInfo` (bool, optional):
-                Flag to enable or disable debug information. If True, additional debug output will be provided during execution. Defaults to False.
+            deepness (int): The depth of the tree to explore per iteration.
+            debugInfo (bool, optional): Flag to enable or disable debug information. If True, additional debug output will be provided during execution. Defaults to False.
         """
         self.graph: CellMap = graph
         self.coveredTarget: list[set[TargetCell]] = [set() for _ in range(self.graph.turns+1)]
@@ -40,7 +34,17 @@ class TreeBrain(Brain):
         self.nbOfNodes: list[int] = [(stage+1)*self.wideness for stage in range(self.graph.turns)]
 
     def construct(self, root: Node, depthS: int, addDepth: int, debug: bool=False) -> Node:
-        """Build a linear/log growth tree exploring all path worth of being explored."""
+        """Build a linear growth tree exploring all path worth of being explored using insert in list methode (more efficient for small size tree O(n) ).
+
+        Args:
+            root (Node): The starting node.
+            depthS (int): The starting depth.
+            addDepth (int): The additional depth to explore.
+            debug (bool, optional): Enable debug prints. Defaults to False.
+
+        Returns:
+            Node: The best leaf node found in the constructed tree.
+        """
         maxLeaf: list[Node] = []
         lenMaxLeaf: int = 0 
         curStage: list[Node] = [root]
@@ -79,7 +83,17 @@ class TreeBrain(Brain):
         return maxLeaf[nodeChoice]
 
     def constructWithHeap(self, root: Node, depthS: int, addDepth: int, debug: bool=False) -> Node:
-        """Build a linear/log growth tree exploring all path worth of being explored."""
+        """Build a linear growth tree exploring all path worth of being explored using an heap methode (more efficient for large size tree O(logn) ).
+
+        Args:
+            root (Node): The starting node.
+            depthS (int): The starting depth.
+            addDepth (int): The additional depth to explore.
+            debug (bool, optional): Enable debug prints. Defaults to False.
+
+        Returns:
+            Node: The best leaf node found in the constructed tree.
+        """
         maxLeaf: list[Node] = []
         lenMaxLeaf: int = 0 
         curStage: list[Node] = [root]
@@ -128,13 +142,20 @@ class TreeBrain(Brain):
         raise ValueError('Cannot move with the given Node')
 
     def _pointForNode(self, alt: int, cell: Cell, stageCoveredTarget: set[TargetCell]) -> int:
-        """Compute the number of point for a node"""
+        """Computes the score for a given node based on its cell and altitude."""
         if alt == 0:
             return 0
         return len(cell.targetsSet - stageCoveredTarget)
 
     def bestPath(self, maxLeaf: Node) -> deque[Node]:
-        """Return the best path of the tree. Use self.construct() to generate leaves"""
+        """Extracts the best path from the constructed tree.
+
+        Args:
+            maxLeaf (Node): The leaf node with the best score.
+
+        Returns:
+            deque[Node]: The optimal path from root to the best leaf node.
+        """
         node = maxLeaf
         path  = deque([node])
         while node.parent is not None:
@@ -143,13 +164,13 @@ class TreeBrain(Brain):
         return path
 
     def setCoveredTarget(self, path: deque[Node]) -> list[set[TargetCell]]:
-        """Add a path in the explored dict, so the nexts paths will not re-compute the same path, i.e some target are now taken"""
+        """Marks targets as covered along a given path."""
         for n, node in enumerate(path):
             self.coveredTarget[n].update(node.cell.targets)    # type: ignore
         return self.coveredTarget
 
     def pathToMove(self, path: deque[Node]) -> list[int]:
-        """Translate a list of node a.k.a path to a list of move"""
+        """Converts a path of nodes into a sequence of moves."""
         moves = []
         prevAlt = path.popleft().alt if len(path) > 0 else 0
         for node in path:
@@ -164,6 +185,7 @@ class TreeBrain(Brain):
         return moves
 
     def splitDepths(self) -> list[int]:
+        """Splits the tree depth into manageable chunks for step-wise exploration."""
         depths = []
         for _ in range(self.graph.turns//self.defaultDepth):
             depths.append(self.defaultDepth)
@@ -172,7 +194,7 @@ class TreeBrain(Brain):
         return depths
 
     def solveByStep(self) -> deque[Node]:
-        """the method to split the tree's construction and the bestPath finding"""
+        """Constructs the decision tree in stages and determines the best path."""
         root = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
         depths = self.splitDepths()
         print("\nBuilding the splitted tree ...")
@@ -189,7 +211,7 @@ class TreeBrain(Brain):
         return self.bestPath(maxLeaf)
 
     def solveBestPath(self) -> None:
-        """Construct a tree find the best path add it to explored and repeat n times where n is the number of balloon"""
+        """Finds the best path for each balloon and stores the movement instructions."""
         nbPoints = 0
         n = self.graph.balloons
         gs = time()
@@ -204,6 +226,15 @@ class TreeBrain(Brain):
         print("_"*50,f"\n\nSome of path: {nbPoints}. Made in {(time()-gs):.2f}s.\n")  if self.debugInfo else None
 
     def solve(self, balloonIdx: int, turn: int) -> int:
+        """Determine the best move for a balloon at a specific turn using tree search.
+
+        Args:
+            balloonIdx (int): The index of the balloon.
+            turn (int): The turn number.
+
+        Returns:
+            int: The optimal move (-1, 0, or 1).
+        """
         assert self.graph.balloons > balloonIdx >= 0
         assert self.graph.turns > turn >= 0
         if len(self.turns) == 0:
@@ -211,7 +242,7 @@ class TreeBrain(Brain):
         return self.turns[balloonIdx][turn]
 
     def insort_right(self, l: list[Node], n: Node, lo, hi) -> None:
-        """With our profiling, it turns out that insertion in a list is better than maintaining a minheap when the list is small ;)"""
+        """Inserts a node into a sorted list while maintaining order."""
         s = n.sum
         while lo < hi:
             mid = (lo + hi) // 2

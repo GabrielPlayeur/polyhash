@@ -1,6 +1,7 @@
 import pytest
 
-from brain import TreeBrain, Node
+from brain import TreeBrain
+from brain.node import Node
 from cellMap import CellMap
 from polyparser import parseChallenge
 
@@ -12,6 +13,7 @@ def tree_setup() -> tuple[TreeBrain, CellMap]:
     tree = TreeBrain(graph, 1000)
     return tree, graph
 
+#TODO: fix this
 class TestTreeBrain:
     def test_treeBrain_init(self, tree_setup):
         _, tr = tree_setup(100)
