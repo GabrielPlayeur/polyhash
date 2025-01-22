@@ -1,5 +1,5 @@
 import pytest
-from objects import Cell, Wind, Balloon
+from objects import Cell, Wind, Balloon, TargetCell
 
 class TestBalloon:
 
@@ -30,3 +30,22 @@ class TestBalloon:
             balloon.moveAlt(10)
         with pytest.raises(AssertionError):
             balloon.moveAlt(-10)
+
+    def test_balloon_applyWind(self):
+        cellStart = Cell(0,0,[Wind(0,0),Wind(0,0),Wind(0,0)])
+        cellFinish = Cell(0,1,[Wind(0,0),Wind(0,0),Wind(0,0)])
+        cellTarget1 = TargetCell(0,2,[Wind(0,0),Wind(0,0),Wind(0,0)])
+        cellTarget2 = TargetCell(0,3,[Wind(0,0),Wind(0,0),Wind(0,0)])
+        cellStart.addNeighbor(cellStart)
+        cellStart.addNeighbor(cellFinish)
+        cellStart.addTarget(cellTarget1)
+        cellFinish.addTarget(cellTarget2)
+        balloon = Balloon(cellStart)
+        assert len(cellTarget1.coverBy)==0 and len(cellTarget2.coverBy)==0
+        balloon.applyWind()
+        assert len(cellTarget1.coverBy)==1 and len(cellTarget2.coverBy)==0
+        assert balloon.cell is cellStart
+        balloon.moveAlt(1)
+        balloon.applyWind()
+        assert len(cellTarget1.coverBy)==0 and len(cellTarget2.coverBy)==1
+        assert balloon.cell is cellFinish

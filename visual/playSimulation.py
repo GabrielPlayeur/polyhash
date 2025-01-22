@@ -10,7 +10,8 @@ from simulation import Simulation
 from polyparser import parseChallenge
 from polysolver import stringifySolution, saveSolution
 from objects import TargetCell
-from brain import RandomBrain, VerifyBrain
+from brain import *
+from cellMap import CellMap
 
 class Visual:
     def __init__(self, name):
@@ -24,8 +25,11 @@ class Visual:
         self.colorConv = {"red": (1.0,0.0, 0.0),
                           "blue": (0,0.0, 1.0),
                           "green": (0,0.5019607843137255,0.0)}
-
-        self.sim = Simulation(parseChallenge(f"./challenges/{name}.in"), VerifyBrain("output/c_medium_tree.txt"))
+        challenge = parseChallenge(f"./challenges/{name}.in")
+        cellMap = CellMap(challenge)
+        brain = TreeBrain(cellMap, 500, 1, False)
+        # brain = VerifyBrain("out_500_25.txt")
+        self.sim = Simulation(challenge, brain, cellMap)
         self.saved = False
 
     def create(self):
@@ -101,7 +105,10 @@ class Visual:
         # Enregistrer les positions actuelles des ballons
         lastP = self.sim.resultData.nbPoints
         # Avancer la simulation
+
+
         self.sim.nextTurn()
+
 
         lstTar = set()
         for tarVec in self.targets:
@@ -136,21 +143,53 @@ class Visual:
         plt.title(f'Grille avec des ballons: {self.sim.current_round} | {self.sim.resultData.nbPoints} = {lastP} + {self.sim.resultData.nbPoints-lastP} ({self.cntGraphPts})')
         self.fig.canvas.draw_idle()  # Redessine les éléments graphiques
 
+    def undo(self):
+        #Reculer la simulation
+        self.sim.prevTurn()
+
+        for tarVec in self.targets:
+            tar, rec = tarVec[0], tarVec[1]
+            if len(tar.coverBy)>0:
+                self._updateColor(rec,'blue')
+            else:
+                self._updateColor(rec, 'red')
+
+        nextPrevPos = []
+        # Mettre à jour les positions des ballons
+        for bal, circle, prev_pos, arr in zip(self.sim.balloons, self.circles, self.previous_positions, self.arrows):
+            new_x, new_y = bal.cell.col, bal.cell.row
+            nextPrevPos.append((new_x, new_y))
+            if bal.cell is self.sim.map.outsideCell:
+                if circle.get_center() != (-1,-1):
+                    circle.set_center((-1, -1))
+                    arr.set_data(x=-1, y=-1, dx=-1, dy=-1)
+                continue
+            arr.set_data(x=new_x, y=new_y, dx=0, dy=0)
+            # Mise à jour de la position du cercle
+            circle.set_center((new_x, new_y))
+        self.previous_positions = nextPrevPos
+        
+        plt.title(f'Grille avec des ballons: {self.sim.current_round}')
+        self.fig.canvas.draw_idle()  # Redessine les éléments graphiques
+
+
     def on_key(self, event):
-        if self.sim.current_round==self.sim.ROUNDS:
+        if event.key == 'r' and self.sim.current_round > 0:  # Appuyer sur espace reculer d'un tour
+            self.undo()
+        elif self.sim.current_round==self.sim.ROUNDS:
             if not self.saved:
                 print(self.sim.resultData.nbPoints)
                 saveSolution(name+".txt", stringifySolution(self.sim.resultData,self.sim.ROUNDS))
                 self.saved = True
-        elif event.key == ' ':  # Appuyer sur espace pour avancer d'un tour
+        elif event.key == ' ' or event.key == 'z':  # Appuyer sur espace pour avancer d'un tour
             self.update()
         if event.key.lower() == 'q':  # Appuyer sur Q pour quitter
             plt.close(self.fig)
 
 if __name__ == '__main__':
     name = "a_example"
-    name = "b_small"
     name = "c_medium"
+    name = "b_small"
     name = "d_final"
     v = Visual(name)
     v.create()

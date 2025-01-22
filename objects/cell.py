@@ -1,4 +1,9 @@
-"""Module.
+"""
+Module for simulating the behavior of a Cell object within a grid, with wind conditions and neighboring cells.
+
+This module defines a Cell class that represents a cell within a grid. Each cell holds information about its position,
+winds at various altitudes, neighboring cells, and target cells that may be in range. The Cell class also supports 
+adding targets and neighbors, retrieving winds by altitude, and navigating between neighboring cells.
 """
 from __future__ import annotations
 from .wind import Wind
@@ -11,18 +16,20 @@ class Cell:
         self.col: int = col
         self._winds: list[Wind] = winds
         self.targets: list[Cell] = []
+        self.targetsSet: set[Cell] = set()
         self.neighbors: list[Cell] = []
 
     def addTarget(self, target: Cell) -> None:
         """Add target cell into the cell's targets list"""
         self.targets.append(target)
+        self.targetsSet.add(target)
 
     def addNeighbor(self, cell: Cell) -> None:
         "add a neighbor at the n altitude, letting n be lenght of neighbors"
         self.neighbors.append(cell)
 
     def getNeighbor(self, alt: int) -> Cell:
-        assert len(self._winds) > alt >= 0
+        assert len(self._winds) > alt >= 0, f"alt: {alt}/{len(self._winds)}"
         return self.neighbors[alt]
 
     def getWinds(self) -> list[Wind]:

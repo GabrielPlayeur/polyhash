@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 from objects import Wind, Cell, TargetCell
-from polyparser import ParserData, parseChallenge
+from polyparser import ParserData
 import pickle
 
-#TODO: change doc in english
+#TODO: TOM change doc in english plsssss
 class CellMap:
     """
     Cette classe représente la carte des vents sous forme d'une matrice de cellules.
@@ -18,7 +18,7 @@ class CellMap:
         self.columns: int = parserData.columns
         self.altitudes: int = parserData.altitudes
         self.turns: int = parserData.turns
-        self.ballons: int = parserData.balloons
+        self.balloons: int = parserData.balloons
         self.radius: int = parserData.radius
         self.startingCell: Cell
         self.outsideCell: Cell = Cell(-1,-1,[])
@@ -54,6 +54,7 @@ class CellMap:
 
     def _defineTargetRange(self, parserData: ParserData) -> None:
         """Defini les cellules couvertes par une target"""
+        ratio = 0
         for targetPos in parserData.targets_pos:
             target = self.map[targetPos[0]][targetPos[1]]
 
@@ -68,6 +69,7 @@ class CellMap:
                     cell = self.map[row][col%self.columns]
                     if self.inRange(target, cell):
                         cell.addTarget(target)
+                        ratio += 1
 
     def _createGraph(self) -> None:
         """Crée un graph à partir de la martice de cellule et de celle des vents"""
