@@ -198,7 +198,7 @@ class TreeBrain(Brain):
         root = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
         depths = self.splitDepths()
         print("\nBuilding the splitted tree ...")
-        constructeur = self.construct if self.defaultDepth*self.wideness < 40_000 else self.constructWithHeap
+        constructeur = self.construct if self.defaultDepth*self.wideness < 20_000 else self.constructWithHeap
         curDepth = 0
         for n, addDepth in enumerate(depths):
             s = time()
