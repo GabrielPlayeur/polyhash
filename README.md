@@ -1,8 +1,6 @@
 # Projet Polyhash
 
-
 ## The team
-========
 
 - TEIGNE Gabriel - Project leader and developper - gabriel.teigne@etu.univ-nantes.fr
 - DANIAUD Tom - Developper - tom.daniaud@etu.univ-nantes.fr
@@ -11,7 +9,6 @@
 
 
 ## Description
-===============
 
 This project aims to solve the HashCode 2015 topic provided by Google France.
 The aim is to optimize the movement of Internet-providing balloons to cover receptors for as long as possible.
@@ -19,26 +16,24 @@ To achieve this, we need to decide how to move the balloons based on the wind ma
 
 
 ## Task distribution
-========================
 
 **TEIGNE Gabriel**
-Tree strategy optimisation
-Test sets
-Add visualisation
+- Tree strategy optimisation
+- Test sets
+- Add visualisation
 
 **DANIAUD Tom**
-Tree strategy implementation
-Simulation creation
+- Tree strategy implementation
+- Simulation creation
 
 **DEMAURE Côme**
-Adding history and an undo of visualisation
+- Adding history and an undo of visualisation
 
 **PETIOT Florian**
-Object implementation
+- Object implementation
 
 
 ## How to install
-========================
 
 1. Clone the repository :
    ```sh
@@ -49,9 +44,7 @@ Object implementation
    pip install -r requirements.txt
    ```
 
-
 ## How to execute
-========================
 
 To run the project, use the following command:
 
@@ -63,7 +56,6 @@ The challenge file must be in the challenges/ folder.
 
 
 ## Strategy implemented
-========================
 
 We have implemented the following strategies to optimize our solutions:
 
@@ -81,16 +73,15 @@ We have implemented the following strategies to optimize our solutions:
 We also carried out other strategies to test how well the simulation worked / to serve as a comparison with our main strategy:
 
 2. **Application of Djikstra's algorithm** :
-   - When the balloon starts moving, we look for the target closest to the balloon by exploring the tree using Djikstra's algorithm.
+   - When the balloon starts moving, we look for the target closest to the balloon using Djikstra's algorithm.
    - Once we've reached the target, we search for the nearest target in the same way.
    - We repeat this process until the end of the simulation.
 
 3. **Random strategy** :
-   - At each new node, the balloon chooses the next node in the tree at random. 
+  - At each new turn, the ball chooses the next legal move at random.
 
 
 ## Performances
-========================
 
 ### Best result : 509 000 points
 
@@ -104,10 +95,8 @@ Width : 350
 
 
 ## Organisation du Code
-========================
 
 The project is structured using an object-oriented paradigm, as follows:
-
 
 ```
 polyhash2024/
@@ -139,7 +128,6 @@ polyhash2024/
 
 
 ## Bugs and known limitations
-========================
 
 - Cutting the tree forces us to choose one of the best paths at the end of the Nth round, which is not optimal. This choice is made randomly and past performance does not prejudge future performance.
 - We cannot run the program to create the entire d_final challenge tree with a width of 400 in a reasonable time. For us, this is due to the fact that using python and the object paradigm makes managing elements in memory slow.
@@ -147,10 +135,6 @@ polyhash2024/
 
 
 ## Other informations
-========================
 
 - One big improvement that could be made is to create and use a single tree by updating the balloon points. This would greatly reduce the creation time and allow deeper and wider trees to be created in a similar amount of time.
 - Change the language to C++ to allow billions of operations to be performed more quickly.
-
-
-
