@@ -197,7 +197,7 @@ class TreeBrain(Brain):
         """Constructs the decision tree in stages and determines the best path."""
         root = Node(self.graph.startingCell, parent=None, alt=0, sum=0)
         depths = self.splitDepths()
-        print("\nBuilding the splitted tree ...")
+        print("\nBuilding the splitted tree ...") if self.debugInfo else None
         constructeur = self.construct if self.defaultDepth*self.wideness < 20_000 else self.constructWithHeap
         curDepth = 0
         for n, addDepth in enumerate(depths):
