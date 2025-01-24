@@ -6,10 +6,9 @@ from objects import Wind, Cell, TargetCell
 from polyparser import ParserData
 import pickle
 
-#TODO: TOM change doc in english plsssss
 class CellMap:
     """
-    Cette classe représente la carte des vents sous forme d'une matrice de cellules.
+    This class represents the wind map as a matrix of cells.
     """
 
     def __init__(self, parserData: ParserData) -> None:
@@ -30,7 +29,7 @@ class CellMap:
         self._createGraph()
 
     def _initialize(self, parserData: ParserData) -> None:
-        """Initialisation de la matrice de cellule"""
+        """Initialization of the cell matrix"""
         self.map = []
 
         for row in range(self.rows):
@@ -53,12 +52,12 @@ class CellMap:
         assert self.startingCell is not None
 
     def _defineTargetRange(self, parserData: ParserData) -> None:
-        """Defini les cellules couvertes par une target"""
+        """Defines the cells covered by a target"""
         ratio = 0
         for targetPos in parserData.targets_pos:
             target = self.map[targetPos[0]][targetPos[1]]
 
-            #pour limiter le rayon de recherche, on teste toutes les cellules dans le carré de coté radius centré sur target
+            #to limit the search radius, we test all the cells in the radius square centered on target
             northSquare = max(target.row-self.radius, 0)
             southSquare = min(target.row+self.radius+1, self.rows)
             eastSquare = target.col-self.radius
@@ -72,8 +71,8 @@ class CellMap:
                         ratio += 1
 
     def _createGraph(self) -> None:
-        """Crée un graph à partir de la martice de cellule et de celle des vents"""
-        assert self.startingCell is not None, "Impossible de créer le graph: startingCell is None"
+        """Creates a graph from the cell and wind martices"""
+        assert self.startingCell is not None, "Impossible to create the graph: startingCell is None"
         for row in range(self.rows):
             for col in range(self.columns):
                 cell = self.map[row][col]
@@ -85,7 +84,7 @@ class CellMap:
                     else:
                         cell.addNeighbor(self.outsideCell)
 
-                assert len(cell.neighbors) == self.altitudes+1, f"La cellule {cell} n'a pas {self.altitudes} cellules adjacentes"
+                assert len(cell.neighbors) == self.altitudes+1, f"The cell {cell} hasn't {self.altitudes} adjacents cells"
 
     def getCell(self, row: int, col: int) -> Cell:
         assert 0 <= row < self.rows, "row out of range"
@@ -93,47 +92,47 @@ class CellMap:
         return self.map[row][col]
 
     def inRange(self, target: Cell, cell: Cell) -> bool:
-        """Retourne vrai si la cellule est dans le rayon <self.radius> de target"""
+        """Returns true if the cell is within the radius <self.radius> of target"""
         columndist = lambda c1, c2: min(abs(c1-c2), self.columns - abs(c1-c2))
         return (cell.row - target.row)**2 + columndist(cell.col, target.col)**2 <= self.radius**2
 
     def save(self, fileName: str) -> None:
         """
-        Sauvegarde l'objet CellMap dans un fichier binaire.
+        Saves the CellMap object in a binary file.
 
-        :param fileName: Nom du fichier. L'extension doit être '<fileName>.poly#'
+        :param fileName: File name. The extension must be '<fileName>.poly#'.
         """
-        assert fileName[-6:] == ".poly#", f"{fileName} n'a pas l'extension '.poly#'"
+        assert fileName[-6:] == ".poly#", f"{fileName} hasn't the extension '.poly#'"
 
         try:
             with open(fileName, 'wb') as file:
                 pickle.dump(self, file)
-            print(f"Sauvegarde effectuée avec succès dans '{fileName}'.")
+            print(f"Successful save in '{fileName}'.")
         except Exception as e:
-            raise RuntimeError(f"Erreur lors de la sauvegarde") from e
+            raise RuntimeError(f"Saving error") from e
 
     @staticmethod
     def load(fileName: str) -> CellMap:
         """
-        Charge un objet CellMap depuis un fichier binaire.
+        Loads a CellMap object from a binary file.
 
-        :param fileName: Nom du fichier. L'extension doit être '<fileName>.poly#'
-        :return: Une instance de CellMap.
-        :raises Exception: Si une erreur se produit lors du chargement.
+        :param fileName: File name. The extension must be '<fileName>.poly#'.
+        :return: An instance of CellMap.
+        :raises Exception: If an error occurs during loading.
         """
         assert fileName[-6:] == ".poly#", f"{fileName} n'a pas l'extension '.poly#'"
         try:
             with open(fileName, 'rb') as file:  # 'rb' pour lecture en binaire
                 cell_map = pickle.load(file)
-            print(f"Carte chargée avec succès depuis '{fileName}'.")
+            print(f"Card successfully loaded from '{fileName}'.")
             return cell_map
         except Exception as e:
-            raise RuntimeError(f"Erreur lors du chargement de la carte depuis '{fileName}'") from e
+            raise RuntimeError(f"Error while loading the map from '{fileName}'") from e
 
     def __str__(self) -> str:
-        """Affiche la carte des vents à l'altitude donnée"""
+        """Displays wind map at given altitude"""
         centerize = lambda content: f"{content:^3}"
-        text = f"Affichage de la carte de taille {self.rows}x{self.columns}\n\n" + centerize("")
+        text = f"Display of the map : {self.rows}x{self.columns}\n\n" + centerize("")
         for i in range(self.columns):
             text += centerize(i)
 
